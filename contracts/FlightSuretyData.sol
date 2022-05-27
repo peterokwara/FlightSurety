@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity >=0.4.22 <0.9.0;
 
 contract FlightSuretyData {
@@ -21,6 +22,7 @@ contract FlightSuretyData {
     }
 
     mapping(address => Airline) private airlines;
+    address[] registeredAirlines = new address[](0);
 
     // Funding
     struct Fund {
@@ -55,6 +57,14 @@ contract FlightSuretyData {
             authorizedContracts[msg.sender] == 1,
             "Caller is not authorized"
         );
+        _;
+    }
+
+    /**
+     * @dev Modifier that requires address to be valid
+     */
+    modifier requireValidAddress(address addr) {
+        require(addr != address(0), "Invalid address");
         _;
     }
 
@@ -103,12 +113,39 @@ contract FlightSuretyData {
         return airlines[airline].isFunded;
     }
 
+    /**
+     * @dev Get registered airlines
+     * @return array with the addresses of all registered airlines
+     */
+    function getRegisteredAirlines() external view returns (address[] memory) {
+        return registeredAirlines;
+    }
+
+    /**
+     * @dev Adds address to authorized contracts
+     */
+    function authorizeCaller(address contractAddress)
+        external
+        requireContractOwner
+    {
+        authorizedContracts[contractAddress] = 1;
+    }
+
+    /**
+     * @dev Removes address from authorized contracts
+     */
+    function deauthorizeCaller(address contractAddress)
+        external
+        requireContractOwner
+    {
+        delete authorizedContracts[contractAddress];
+    }
+
     // Event Definitions //
     event AirlineFunded(string name, address addr);
+    event AirlineRegistered(string name, address addr);
 
-    constructor(string memory firstAirlineName, address firstAirlineAddress)
-        public
-    {
+    constructor(string memory firstAirlineName, address firstAirlineAddress) {
         contractOwner = msg.sender;
 
         // Airline contract initialization
@@ -132,4 +169,47 @@ contract FlightSuretyData {
         airlines[addr].isFunded = true;
         emit AirlineFunded(airlines[addr].name, addr);
     }
+
+    /**
+     * @dev Add an airline to the registration queue
+     */
+    function registerAirline(string calldata name, address addr)
+        external
+        requireIsOperational
+        requireIsCallerAuthorized
+        requireValidAddress(addr)
+        returns (bool success)
+    {
+        require(
+            !airlines[addr].isRegistered,
+            "Airline has already been registered"
+        );
+
+        bool result = true;
+
+        airlines[addr] = Airline({
+            name: name,
+            isFunded: false,
+            isRegistered: true
+        });
+
+        registeredAirlines.push(addr);
+
+        emit AirlineRegistered(name, addr);
+
+        return result;
+    }
+
+    // /**
+    //  * @dev Initial funding for the insurance. Unless there are too many delayed flights
+    //  *      resulting in insurance payouts, the contract should be self-sustaining
+    //  */
+    // function fund() public payable requireIsOperational {}
+
+    /**
+     * @dev Fallback function for funding smart contract.
+     */
+    fallback() external payable {}
+
+    receive() external payable {}
 }

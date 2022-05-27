@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity >=0.4.22 <0.9.0;
+
+// import "../node_modules/openzeppelin-solidity/contracts/utils/math/SafeMath.sol";
 
 contract FlightSuretyApp {
     // Data Variables //
@@ -12,6 +15,16 @@ contract FlightSuretyApp {
 
     // Airline
     uint256 constant AIRLINE_FUNDING_VALUE = 10 ether;
+
+    // Multi-party consensus for airline registration
+    mapping(address => address[]) private registerAirlineMultiCalls;
+
+    // Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines
+    uint256 constant REGISTER_AIRLINE_MULTI_CALL_THRESHOLD = 4;
+
+    uint256 constant REGISTER_AIRLINE_MULTI_CALL_CONSENSUS_DIVISOR = 2;
+
+    // Constructor //
 
     constructor(address dataContract) public {
         contractOwner = msg.sender;
@@ -53,14 +66,74 @@ contract FlightSuretyApp {
 
     // Events //
     event AirlineFunded(address addr, uint256 amount);
+    event AirlineRegistered(
+        string name,
+        address addr,
+        bool success,
+        uint256 votes
+    );
 
     // Smart Contract Functions //
-    function registerAirline(string memory name, address addr)
+
+    /**
+     * @dev Add an airline to the registration queue
+     */
+    function registerAirline(string calldata name, address addr)
         public
         requireIsOperational
         requireValidAddress(addr)
         requireAirlineIsFunded(msg.sender)
-    {}
+        returns (bool success, uint256 votes)
+    {
+        bool result = false;
+        address[] memory registeredAirlines = flightSuretyData
+            .getRegisteredAirlines();
+
+        // Register first airline
+        if (registeredAirlines.length == 0) {
+            result = flightSuretyData.registerAirline(name, addr);
+        } else if (
+            registeredAirlines.length < REGISTER_AIRLINE_MULTI_CALL_THRESHOLD
+        ) {
+            result = flightSuretyData.registerAirline(name, addr);
+        }
+        // Multiparty Consensus: Registration of fifth and subsequent airlines requires multi-party consensus of 50% of registered airlines
+        else {
+            bool isDuplicate = false;
+
+            for (
+                uint256 i = 0;
+                i < registerAirlineMultiCalls[addr].length;
+                i++
+            ) {
+                if (registerAirlineMultiCalls[addr][i] == msg.sender) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+
+            require(!isDuplicate, "Caller has already called this function.");
+
+            registerAirlineMultiCalls[addr].push(msg.sender);
+
+            if (
+                registerAirlineMultiCalls[addr].length >=
+                registeredAirlines.length /
+                    REGISTER_AIRLINE_MULTI_CALL_CONSENSUS_DIVISOR
+            ) {
+                result = flightSuretyData.registerAirline(name, addr);
+                registerAirlineMultiCalls[addr] = new address[](0);
+            }
+        }
+
+        emit AirlineRegistered(
+            name,
+            addr,
+            result,
+            registerAirlineMultiCalls[addr].length
+        );
+        return (result, registerAirlineMultiCalls[addr].length);
+    }
 
     /**
      * @dev Submit funding for airline
@@ -73,7 +146,6 @@ contract FlightSuretyApp {
 
         // Cast address to payable address
         payable(address(flightSuretyData)).transfer(msg.value);
-            // address(uint160(passenger)).transfer(amount);
 
         flightSuretyData.fundAirline(msg.sender);
 
@@ -101,4 +173,10 @@ abstract contract FlightSuretyData {
         returns (bool);
 
     function fundAirline(address addr) external payable virtual;
+
+    function getRegisteredAirlines()
+        external
+        view
+        virtual
+        returns (address[] memory);
 }

@@ -6,7 +6,7 @@ const FlightSuretyData = artifacts.require("FlightSuretyData");
  * Ethereum client
  * See docs: https://www.trufflesuite.com/docs/truffle/testing/writing-tests-in-javascript
  */
-contract("FlightSuretyApp", async (accounts) => {
+contract("FlightSurety", async (accounts) => {
 
   let owner = accounts[0];
   let firstAirlineAddress = accounts[1];
@@ -17,11 +17,16 @@ contract("FlightSuretyApp", async (accounts) => {
   let airline4 = accounts[4];
   let airline5 = accounts[5];
 
+  const AIRLINE_FUNDING_VALUE = web3.utils.toWei("10", "ether");
 
   let flightSuretyData = await FlightSuretyData.new(firstAirlineName, firstAirlineAddress);
   let flightSuretyApp = await FlightSuretyApp.new(flightSuretyData.address);
 
   describe('(airline)', () => {
+
+    before('setup contract', async () => {
+      await flightSuretyData.authorizeCaller(flightSuretyApp.address);
+    });
 
     it('should register the first airline when the contract is deployed', async () => {
       let airlineName = await flightSuretyData.getAirlineName(firstAirlineAddress, { from: owner });
@@ -52,5 +57,20 @@ contract("FlightSuretyApp", async (accounts) => {
       assert.equal(reverted, true, "Airline cannot be funded with less than 10 ether");
 
     });
+
+    it('should participate in contract when it is funded with the correct amount', async () => {
+      await flightSuretyApp.fundAirline({ from: firstAirlineAddress, value: AIRLINE_FUNDING_VALUE })
+
+      try {
+        await flightSuretyApp.registerAirline("Ugandan Airways", airline2, { from: firstAirlineAddress });
+      }
+      catch (e) {
+        console.log(e);
+      }
+      let result = await flightSuretyData.isAirline.call(airline2);
+
+      assert.equal(result, true, "Airline should be able to register another airline if it has been funded");
+    });
+
   });
 });
