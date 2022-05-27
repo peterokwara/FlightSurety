@@ -7,6 +7,9 @@ contract FlightSuretyData {
     address private contractOwner;
     bool private operational = true;
 
+    uint256 constant M = 1;
+    address[] multiCalls = new address[](0);
+
     // Modifier //
 
     /**
@@ -14,6 +17,14 @@ contract FlightSuretyData {
      */
     modifier requireIsOperational() {
         require(isOperational(), "Contract is currently not operational");
+        _;
+    }
+
+    /**
+     * @dev Modifier that requires the "ContractOwner" account to be the function caller
+     */
+    modifier requireContractOwner() {
+        require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
     }
 
@@ -27,5 +38,14 @@ contract FlightSuretyData {
         return operational;
     }
 
-    constructor() public {}
+    /**
+     * @dev Set the operating status of the contract
+     */
+    function setOperatingStatus(bool mode) external requireContractOwner {
+        operational = mode;
+    }
+
+    constructor() public {
+        contractOwner = msg.sender;
+    }
 }

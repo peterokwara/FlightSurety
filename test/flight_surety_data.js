@@ -13,4 +13,29 @@ contract("FlightSuretyData", function (accounts) {
     assert.equal(status, true, "Incorrect initial operating status value");
   });
 
+  it('should block access to setOperatingStatus() for non-contract owner account', async () => {
+    const flightSuretyData = await FlightSuretyData.deployed();
+    let accessDenied = false;
+    try {
+      await flightSuretyData.setOperatingStatus(false, { from: accounts[2] });
+    } catch (error) {
+      accessDenied = true;
+    }
+
+    assert.equal(accessDenied, true, "Access has not been restricted by the contract owner");
+  });
+
+  it('should allow access to setOperatingStatus() for contract owner account', async () => {
+    const flightSuretyData = await FlightSuretyData.deployed();
+    let accessDenied = false;
+    try {
+      await flightSuretyData.setOperatingStatus(false, { from: accounts[0] });
+    } catch (error) {
+      console.log(error);
+      accessDenied = true;
+    }
+
+    assert.equal(accessDenied, false, "Access has not been restricted by the contract owner");
+  });
+
 });
