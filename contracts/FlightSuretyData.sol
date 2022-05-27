@@ -14,7 +14,7 @@ contract FlightSuretyData {
     struct Airline {
         string name;
         bool isRegistered;
-        bool isOperational;
+        bool isFunded;
     }
 
     mapping(address => Airline) private airlines;
@@ -73,6 +73,22 @@ contract FlightSuretyData {
         return airlines[airline].name;
     }
 
+    /**
+     * @dev Check if the address is a registered airline
+     * @return A bool confirming whether or not the address is a registered airline
+     */
+    function isAirline(address airline) external view returns (bool) {
+        return airlines[airline].isRegistered;
+    }
+
+    /**
+     * @dev Check if the address is a funded airline
+     * @return A bool confirming whether or not the address is a funded airline
+     */
+    function isFundedAirline(address airline) external view returns (bool) {
+        return airlines[airline].isFunded;
+    }
+
     constructor(string memory firstAirlineName, address firstAirlineAddress)
         public
     {
@@ -82,7 +98,7 @@ contract FlightSuretyData {
         airlines[firstAirlineAddress] = Airline({
             name: firstAirlineName,
             isRegistered: true,
-            isOperational: true
+            isFunded: false
         });
     }
 }
