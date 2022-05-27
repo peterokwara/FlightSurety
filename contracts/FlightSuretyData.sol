@@ -10,6 +10,22 @@ contract FlightSuretyData {
     uint256 constant M = 1;
     address[] multiCalls = new address[](0);
 
+    // Airlines
+    struct Airline {
+        string name;
+        bool isRegistered;
+        bool isOperational;
+    }
+
+    mapping(address => Airline) private airlines;
+
+    // Funding
+    struct Fund {
+        uint256 amount;
+    }
+
+    mapping(address => Fund) fund;
+
     // Modifier //
 
     /**
@@ -45,7 +61,28 @@ contract FlightSuretyData {
         operational = mode;
     }
 
-    constructor() public {
+    /**
+     * @dev Get airline details
+     * @return Airline with the provided address
+     */
+    function getAirlineName(address airline)
+        external
+        view
+        returns (string memory)
+    {
+        return airlines[airline].name;
+    }
+
+    constructor(string memory firstAirlineName, address firstAirlineAddress)
+        public
+    {
         contractOwner = msg.sender;
+
+        // Airline contract initialization
+        airlines[firstAirlineAddress] = Airline({
+            name: firstAirlineName,
+            isRegistered: true,
+            isOperational: true
+        });
     }
 }
