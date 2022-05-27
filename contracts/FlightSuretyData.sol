@@ -10,6 +10,9 @@ contract FlightSuretyData {
     uint256 constant M = 1;
     address[] multiCalls = new address[](0);
 
+    // Restrict data contract callers
+    mapping(address => uint256) private authorizedContracts;
+
     // Airlines
     struct Airline {
         string name;
@@ -41,6 +44,17 @@ contract FlightSuretyData {
      */
     modifier requireContractOwner() {
         require(msg.sender == contractOwner, "Caller is not contract owner");
+        _;
+    }
+
+    /**
+     * @dev Modifier that requires function caller to be authorized
+     */
+    modifier requireIsCallerAuthorized() {
+        require(
+            authorizedContracts[msg.sender] == 1,
+            "Caller is not authorized"
+        );
         _;
     }
 
@@ -89,6 +103,9 @@ contract FlightSuretyData {
         return airlines[airline].isFunded;
     }
 
+    // Event Definitions //
+    event AirlineFunded(string name, address addr);
+
     constructor(string memory firstAirlineName, address firstAirlineAddress)
         public
     {
@@ -100,5 +117,19 @@ contract FlightSuretyData {
             isRegistered: true,
             isFunded: false
         });
+    }
+
+    // Smart Contract Functions //
+
+    /**
+     * @dev Submit funding for airline
+     */
+    function fundAirline(address addr)
+        external
+        requireIsOperational
+        requireIsCallerAuthorized
+    {
+        airlines[addr].isFunded = true;
+        emit AirlineFunded(airlines[addr].name, addr);
     }
 }

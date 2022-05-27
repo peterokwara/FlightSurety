@@ -31,13 +31,26 @@ contract("FlightSuretyApp", async (accounts) => {
     it('should not register an airline if an airline is not registered', async () => {
       try {
         await flightSuretyApp.registerAirline("Ugandan Airways", airline2, { from: firstAirlineAddress });
-      } catch (error) {
-        console.log(error)
-      }
+      } catch (error) { }
 
       let result = await flightSuretyData.isAirline.call(airline2);
 
       assert.equal(result, false, "Airline should not be able to register another airline if it has not provided funding");
+    });
+
+    it('should have a funding of 10 ether', async () => {
+      const AIRLINE_FUNDING_VALUE_LOWER = web3.utils.toWei("5", "ether");
+
+      let reverted = false;
+      try {
+        await flightSuretyApp.fundAirline({ from: firstAirlineAddress, value: AIRLINE_FUNDING_VALUE_LOWER })
+      }
+      catch (error) {
+        reverted = true;
+      }
+
+      assert.equal(reverted, true, "Airline cannot be funded with less than 10 ether");
+
     });
   });
 });

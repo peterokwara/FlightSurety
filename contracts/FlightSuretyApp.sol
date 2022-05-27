@@ -2,11 +2,16 @@
 pragma solidity >=0.4.22 <0.9.0;
 
 contract FlightSuretyApp {
+    // Data Variables //
+
     // FlightSurety data contract
     FlightSuretyData flightSuretyData;
 
     // Account used to deploy contract
     address private contractOwner;
+
+    // Airline
+    uint256 constant AIRLINE_FUNDING_VALUE = 10 ether;
 
     constructor(address dataContract) public {
         contractOwner = msg.sender;
@@ -46,6 +51,9 @@ contract FlightSuretyApp {
         _;
     }
 
+    // Events //
+    event AirlineFunded(address addr, uint256 amount);
+
     // Smart Contract Functions //
     function registerAirline(string memory name, address addr)
         public
@@ -53,6 +61,24 @@ contract FlightSuretyApp {
         requireValidAddress(addr)
         requireAirlineIsFunded(msg.sender)
     {}
+
+    /**
+     * @dev Submit funding for airline
+     */
+    function fundAirline() external payable requireIsOperational {
+        require(
+            msg.value == AIRLINE_FUNDING_VALUE,
+            "Not correct funding value submitted"
+        );
+
+        // Cast address to payable address
+        payable(address(flightSuretyData)).transfer(msg.value);
+            // address(uint160(passenger)).transfer(amount);
+
+        flightSuretyData.fundAirline(msg.sender);
+
+        emit AirlineFunded(msg.sender, msg.value);
+    }
 }
 
 // FlightSurety data contract interface
@@ -73,4 +99,6 @@ abstract contract FlightSuretyData {
         view
         virtual
         returns (bool);
+
+    function fundAirline(address addr) external payable virtual;
 }
