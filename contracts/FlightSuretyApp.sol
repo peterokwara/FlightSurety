@@ -26,7 +26,7 @@ contract FlightSuretyApp {
 
     // Constructor //
 
-    constructor(address dataContract) public {
+    constructor(address dataContract) {
         contractOwner = msg.sender;
         flightSuretyData = FlightSuretyData(dataContract);
     }

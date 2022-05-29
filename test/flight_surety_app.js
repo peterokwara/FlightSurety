@@ -72,5 +72,16 @@ contract("FlightSurety", async (accounts) => {
       assert.equal(result, true, "Airline should be able to register another airline if it has been funded");
     });
 
+    it('should not register a contract more than twice', async () => {
+      let reverted = false;
+
+      try {
+        await flightSuretyApp.registerAirline("Ugandan Airways", airline2, { from: firstAirlineAddress });
+      } catch (error) {
+        reverted = true;
+      }
+      assert.equal(reverted, true, "Airline cannot be registered twice")
+    });
+
   });
 });
