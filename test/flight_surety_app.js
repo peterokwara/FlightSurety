@@ -1,16 +1,14 @@
 const FlightSuretyApp = artifacts.require("FlightSuretyApp");
 const FlightSuretyData = artifacts.require("FlightSuretyData");
+const test = require('../config/testConfig');
 
 /*
  * uncomment accounts to access the test accounts made available by the
  * Ethereum client
  * See docs: https://www.trufflesuite.com/docs/truffle/testing/writing-tests-in-javascript
  */
-contract("FlightSurety", async (accounts) => {
-
-  let owner = accounts[0];
-  let firstAirlineAddress = accounts[1];
-  let firstAirlineName = "Kenya Airways";
+contract("FlightSurety App", async (accounts) => {
+  let config;
 
   let airline2 = accounts[2];
   let airline3 = accounts[3];
@@ -19,26 +17,24 @@ contract("FlightSurety", async (accounts) => {
 
   const AIRLINE_FUNDING_VALUE = web3.utils.toWei("10", "ether");
 
-  let flightSuretyData = await FlightSuretyData.new(firstAirlineName, firstAirlineAddress);
-  let flightSuretyApp = await FlightSuretyApp.new(flightSuretyData.address);
+  before('setup contract', async () => {
+    config = await test.config(accounts);
+    await config.flightSuretyData.authorizeCaller(config.flightSuretyApp.address);
+  });
 
-  describe('(airline)', () => {
-
-    before('setup contract', async () => {
-      await flightSuretyData.authorizeCaller(flightSuretyApp.address);
-    });
+  describe('The (airline)', () => {
 
     it('should register the first airline when the contract is deployed', async () => {
-      let airlineName = await flightSuretyData.getAirlineName(firstAirlineAddress, { from: owner });
-      assert.equal(airlineName, firstAirlineName, "First airline is not registered when contract is deployed")
+      let airlineName = await config.flightSuretyData.getAirlineName(config.firstAirlineAddress, { from: config.owner });
+      assert.equal(airlineName, config.firstAirlineName, "First airline is not registered when contract is deployed")
     });
 
     it('should not register an airline if an airline is not registered', async () => {
       try {
-        await flightSuretyApp.registerAirline("Ugandan Airways", airline2, { from: firstAirlineAddress });
+        await config.flightSuretyApp.registerAirline("Ugandan Airways", airline2, { from: config.firstAirlineAddress });
       } catch (error) { }
 
-      let result = await flightSuretyData.isAirline.call(airline2);
+      let result = await config.flightSuretyData.isAirline.call(airline2);
 
       assert.equal(result, false, "Airline should not be able to register another airline if it has not provided funding");
     });
@@ -48,7 +44,7 @@ contract("FlightSurety", async (accounts) => {
 
       let reverted = false;
       try {
-        await flightSuretyApp.fundAirline({ from: firstAirlineAddress, value: AIRLINE_FUNDING_VALUE_LOWER })
+        await config.flightSuretyApp.fundAirline({ from: config.firstAirlineAddress, value: AIRLINE_FUNDING_VALUE_LOWER })
       }
       catch (error) {
         reverted = true;
@@ -59,15 +55,15 @@ contract("FlightSurety", async (accounts) => {
     });
 
     it('should participate in contract when it is funded with the correct amount', async () => {
-      await flightSuretyApp.fundAirline({ from: firstAirlineAddress, value: AIRLINE_FUNDING_VALUE })
+      await config.flightSuretyApp.fundAirline({ from: config.firstAirlineAddress, value: AIRLINE_FUNDING_VALUE })
 
       try {
-        await flightSuretyApp.registerAirline("Ugandan Airways", airline2, { from: firstAirlineAddress });
+        await config.flightSuretyApp.registerAirline("Ugandan Airways", airline2, { from: config.firstAirlineAddress });
       }
       catch (e) {
         console.log(e);
       }
-      let result = await flightSuretyData.isAirline.call(airline2);
+      let result = await config.flightSuretyData.isAirline.call(airline2);
 
       assert.equal(result, true, "Airline should be able to register another airline if it has been funded");
     });
@@ -76,7 +72,7 @@ contract("FlightSurety", async (accounts) => {
       let reverted = false;
 
       try {
-        await flightSuretyApp.registerAirline("Ugandan Airways", airline2, { from: firstAirlineAddress });
+        await config.flightSuretyApp.registerAirline("Ugandan Airways", airline2, { from: config.firstAirlineAddress });
       } catch (error) {
         reverted = true;
       }
