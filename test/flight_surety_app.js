@@ -1,5 +1,3 @@
-const FlightSuretyApp = artifacts.require("FlightSuretyApp");
-const FlightSuretyData = artifacts.require("FlightSuretyData");
 const test = require('../config/testConfig');
 
 /*
