@@ -154,6 +154,8 @@ contract FlightSuretyData {
             isRegistered: true,
             isFunded: false
         });
+
+        registeredAirlines.push(firstAirlineAddress);
     }
 
     // Smart Contract Functions //
