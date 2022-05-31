@@ -221,7 +221,25 @@ contract("FlightSurety App", async (accounts) => {
       assert.equal(reverted, true, "Airline cannot register a flight more than once")
     });
 
+
+    it('should not register a flight if the airline is not funded', async () => {
+      let reverted = false;
+
+      // Register from a non funded airline
+      try {
+        await config
+          .flightSuretyApp
+          .registerFlight(flight3.flight, flight3.to, flight3.from, flight3.timestamp, { from: flight3.airline });
+      }
+      catch (e) {
+        reverted = true;
+      }
+
+      // Should be reverted
+      assert.equal(reverted, true, "Airline cannot register a flight if it is not funded");
+    });
   });
 
-
 });
+
+
