@@ -8,10 +8,42 @@ const test = require('../config/testConfig');
 contract("FlightSurety App", async (accounts) => {
   let config;
 
+  const TIMESTAMP = Math.floor(Date.now() / 1000);
+
+
   let airline2 = accounts[2];
   let airline3 = accounts[3];
   let airline4 = accounts[4];
   let airline5 = accounts[5];
+
+  let flight1 = {
+    airline: airline2,
+    flight: "5J 814",
+    from: "SIN",
+    to: "MNL",
+    timestamp: TIMESTAMP
+  }
+  let flight2 = {
+    airline: airline2,
+    flight: "5J 600",
+    from: "CEB",
+    to: "DVO",
+    timestamp: TIMESTAMP
+  }
+  let flight3 = {
+    airline: airline3,
+    flight: "PR 2543",
+    from: "MNL",
+    to: "DGT",
+    timestamp: TIMESTAMP
+  }
+  let flight4 = {
+    airline: airline4,
+    flight: "SQ 345",
+    from: "ZRH",
+    to: "SIN",
+    timestamp: TIMESTAMP
+  }
 
   const AIRLINE_FUNDING_VALUE = web3.utils.toWei("10", "ether");
 
@@ -154,6 +186,42 @@ contract("FlightSurety App", async (accounts) => {
       assert.equal(result, true, "Registering the fifth airline should be possible");
     });
 
+    it('should be able to register a new flight', async () => {
+
+      let result;
+
+      // Register a flight
+      try {
+        await config
+          .flightSuretyApp
+          .registerFlight(flight1.flight, flight1.to, flight1.from, flight1.timestamp, { from: flight1.airline });
+      } catch (error) {
+        console.log(error);
+      }
+
+      // Check if the flight is registered
+      result = await config.flightSuretyData.isFlight.call(flight1.airline, flight1.flight, flight1.timestamp);
+      assert.equal(result, true, "A funded airline can register a new flight");
+
+    });
+
+    it('should fail to register the flight more than once', async () => {
+
+      let reverted = false;
+
+      // Register the flight again
+      try {
+        await config
+          .flightSuretyApp
+          .registerFlight(flight1.flight, flight1.to, flight1.from, flight1.timestamp, { from: flight1.airline });
+      } catch (error) {
+        reverted = true;
+      }
+
+      assert.equal(reverted, true, "Airline cannot register a flight more than once")
+    });
 
   });
+
+
 });

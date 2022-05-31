@@ -72,6 +72,13 @@ contract FlightSuretyApp {
         bool success,
         uint256 votes
     );
+    event FlightRegistered(
+        address airline,
+        string flight,
+        string from,
+        string to,
+        uint256 timestamp
+    );
 
     // Smart Contract Functions //
 
@@ -151,6 +158,31 @@ contract FlightSuretyApp {
 
         emit AirlineFunded(msg.sender, msg.value);
     }
+
+    /**
+     * @dev Register a flight
+     */
+    function registerFlight(
+        string calldata flight,
+        string calldata from,
+        string calldata to,
+        uint256 timestamp
+    )
+        external
+        requireIsOperational
+        requireValidAddress(msg.sender)
+        requireAirlineIsFunded(msg.sender)
+    {
+        // Register Flight
+        flightSuretyData.registerFlight(
+            msg.sender,
+            flight,
+            from,
+            to,
+            timestamp
+        );
+        emit FlightRegistered(msg.sender, flight, from, to, timestamp);
+    }
 }
 
 // FlightSurety data contract interface
@@ -179,4 +211,13 @@ abstract contract FlightSuretyData {
         view
         virtual
         returns (address[] memory);
+
+    // Flights
+    function registerFlight(
+        address airline,
+        string calldata flight,
+        string calldata from,
+        string calldata to,
+        uint256 timestamp
+    ) external virtual;
 }

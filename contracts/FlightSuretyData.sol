@@ -24,6 +24,19 @@ contract FlightSuretyData {
     mapping(address => Airline) private airlines;
     address[] registeredAirlines = new address[](0);
 
+    // Flights
+    struct Flight {
+        bool isRegistered;
+        uint8 statusCode; // 0: unknown (in-flight), >0: landed
+        uint256 updatedTimestamp;
+        address airline;
+        string flight;
+        string from;
+        string to;
+    }
+    mapping(bytes32 => Flight) private flights;
+    bytes32[] registeredFlights = new bytes32[](0);
+
     // Funding
     struct Fund {
         uint256 amount;
@@ -65,6 +78,17 @@ contract FlightSuretyData {
      */
     modifier requireValidAddress(address addr) {
         require(addr != address(0), "Invalid address");
+        _;
+    }
+
+    /**
+     * @dev Modifier that requires airline to be funded
+     */
+    modifier requireAirlineIsFunded(address airline) {
+        require(
+            this.isFundedAirline(airline),
+            "Only existing and funded airlines are allowed"
+        );
         _;
     }
 
@@ -141,9 +165,41 @@ contract FlightSuretyData {
         delete authorizedContracts[contractAddress];
     }
 
+    /**
+     * @dev Get the flight key given the airline, flight and timestamp
+     * @return key The key for the flight
+     */
+    function getFlightKey(
+        address airline,
+        string memory flight,
+        uint256 timestamp
+    ) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(airline, flight, timestamp));
+    }
+
+    /**
+     * @dev Check if the flight is registered
+     */
+    function isFlight(
+        address airline,
+        string calldata flight,
+        uint256 timestamp
+    ) external view returns (bool) {
+        return flights[getFlightKey(airline, flight, timestamp)].isRegistered;
+    }
+
     // Event Definitions //
+
     event AirlineFunded(string name, address addr);
     event AirlineRegistered(string name, address addr);
+    event FlightRegistered(
+        bytes32 flightKey,
+        address airline,
+        string flight,
+        string from,
+        string to,
+        uint256 timestamp
+    );
 
     constructor(string memory firstAirlineName, address firstAirlineAddress) {
         contractOwner = msg.sender;
@@ -202,11 +258,42 @@ contract FlightSuretyData {
         return result;
     }
 
-    // /**
-    //  * @dev Initial funding for the insurance. Unless there are too many delayed flights
-    //  *      resulting in insurance payouts, the contract should be self-sustaining
-    //  */
-    // function fund() public payable requireIsOperational {}
+    /**
+     * @dev Register a flight
+     */
+    function registerFlight(
+        address airline,
+        string calldata flight,
+        string calldata from,
+        string calldata to,
+        uint256 timestamp
+    )
+        external
+        requireIsOperational
+        requireIsCallerAuthorized
+        requireValidAddress(airline)
+        requireAirlineIsFunded(airline)
+    {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+        require(
+            !flights[flightKey].isRegistered,
+            "Flight has already been registered"
+        );
+
+        flights[flightKey] = Flight({
+            isRegistered: true,
+            statusCode: 0,
+            updatedTimestamp: timestamp,
+            airline: airline,
+            flight: flight,
+            from: from,
+            to: to
+        });
+
+        registeredFlights.push(flightKey);
+
+        emit FlightRegistered(flightKey, airline, flight, from, to, timestamp);
+    }
 
     /**
      * @dev Fallback function for funding smart contract.
