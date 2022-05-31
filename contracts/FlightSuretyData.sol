@@ -37,6 +37,23 @@ contract FlightSuretyData {
     mapping(bytes32 => Flight) private flights;
     bytes32[] registeredFlights = new bytes32[](0);
 
+    uint8 private constant STATUS_CODE_UNKNOWN = 0;
+    uint8 private constant STATUS_CODE_ON_TIME = 10;
+    uint8 private constant STATUS_CODE_LATE_AIRLINE = 20;
+    uint8 private constant STATUS_CODE_LATE_WEATHER = 30;
+    uint8 private constant STATUS_CODE_LATE_TECHNICAL = 40;
+    uint8 private constant STATUS_CODE_LATE_OTHER = 50;
+
+    // Insurance
+    struct Insurance {
+        address passenger;
+        uint256 amount; // Passenger insurance payment
+        uint256 multiplier; // General damages multiplier (1.5x by default)
+        bool isCredited;
+    }
+    mapping(bytes32 => Insurance[]) insuredPassengersPerFlight;
+    mapping(address => uint256) public pendingPayments;
+
     // Funding
     struct Fund {
         uint256 amount;
@@ -188,6 +205,39 @@ contract FlightSuretyData {
         return flights[getFlightKey(airline, flight, timestamp)].isRegistered;
     }
 
+    /**
+     * @dev Check if the flight status code is "landed"
+     */
+    function isLandedFlight(
+        address airline,
+        string calldata flight,
+        uint256 timestamp
+    ) external view returns (bool) {
+        return
+            flights[getFlightKey(airline, flight, timestamp)].statusCode >
+            STATUS_CODE_UNKNOWN;
+    }
+
+    /**
+     * @dev Check if the passenger is registerd for the flight
+     */
+    function isInsured(
+        address passenger,
+        address airline,
+        string calldata flight,
+        uint256 timestamp
+    ) external view returns (bool) {
+        Insurance[] memory insuredPassengers = insuredPassengersPerFlight[
+            getFlightKey(airline, flight, timestamp)
+        ];
+        for (uint256 i = 0; i < insuredPassengers.length; i++) {
+            if (insuredPassengers[i].passenger == passenger) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Event Definitions //
 
     event AirlineFunded(string name, address addr);
@@ -199,6 +249,14 @@ contract FlightSuretyData {
         string from,
         string to,
         uint256 timestamp
+    );
+    event InsuranceBought(
+        address airline,
+        string flight,
+        uint256 timestamp,
+        address passenger,
+        uint256 amount,
+        uint256 multiplier
     );
 
     constructor(string memory firstAirlineName, address firstAirlineAddress) {
@@ -293,6 +351,38 @@ contract FlightSuretyData {
         registeredFlights.push(flightKey);
 
         emit FlightRegistered(flightKey, airline, flight, from, to, timestamp);
+    }
+
+    /**
+     * @dev Buy insurance for a flight
+     */
+    function buy(
+        address airline,
+        string calldata flight,
+        uint256 timestamp,
+        address passenger,
+        uint256 amount,
+        uint256 multiplier
+    ) external requireIsOperational requireIsCallerAuthorized {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+
+        insuredPassengersPerFlight[flightKey].push(
+            Insurance({
+                passenger: passenger,
+                amount: amount,
+                multiplier: multiplier,
+                isCredited: false
+            })
+        );
+
+        emit InsuranceBought(
+            airline,
+            flight,
+            timestamp,
+            passenger,
+            amount,
+            multiplier
+        );
     }
 
     /**

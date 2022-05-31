@@ -24,6 +24,14 @@ contract FlightSuretyApp {
 
     uint256 constant REGISTER_AIRLINE_MULTI_CALL_CONSENSUS_DIVISOR = 2;
 
+    // Insurance
+
+    // Passenger Payment: Passengers may pay up to 1 ether for purchasing flight insurance
+    uint256 constant MAX_PASSENGER_INSURANCE_VALUE = 1 ether;
+
+    // Insurance multiplier in percentage
+    uint256 constant INSURANCE_MULTIPLIER = 150; // 150%
+
     // Constructor //
 
     constructor(address dataContract) {
@@ -78,6 +86,14 @@ contract FlightSuretyApp {
         string from,
         string to,
         uint256 timestamp
+    );
+    event InsuranceBought(
+        address airline,
+        string flight,
+        uint256 timestamp,
+        address passenger,
+        uint256 amount,
+        uint256 multiplier
     );
 
     // Smart Contract Functions //
@@ -183,6 +199,54 @@ contract FlightSuretyApp {
         );
         emit FlightRegistered(msg.sender, flight, from, to, timestamp);
     }
+
+    /**
+     * @dev Buy insurance for a flight
+     */
+    function buyInsurance(
+        address airline,
+        string calldata flight,
+        uint256 timestamp
+    ) external payable requireIsOperational {
+        require(
+            msg.value > 0 && msg.value <= MAX_PASSENGER_INSURANCE_VALUE,
+            "Insurance value is not within the limits"
+        );
+        require(
+            flightSuretyData.isFlight(airline, flight, timestamp),
+            "Flight is not registered"
+        );
+        require(
+            !flightSuretyData.isLandedFlight(airline, flight, timestamp),
+            "Flight already landed"
+        );
+        require(
+            !flightSuretyData.isInsured(msg.sender, airline, flight, timestamp),
+            "Passenger already bought insurance for this flight"
+        );
+
+        // Cast address to payable address
+        payable(address(flightSuretyData)).transfer(msg.value);
+
+        // Store airline information
+        flightSuretyData.buy(
+            airline,
+            flight,
+            timestamp,
+            msg.sender,
+            msg.value,
+            INSURANCE_MULTIPLIER
+        );
+
+        emit InsuranceBought(
+            airline,
+            flight,
+            timestamp,
+            msg.sender,
+            msg.value,
+            INSURANCE_MULTIPLIER
+        );
+    }
 }
 
 // FlightSurety data contract interface
@@ -220,4 +284,47 @@ abstract contract FlightSuretyData {
         string calldata to,
         uint256 timestamp
     ) external virtual;
+
+    function isFlight(
+        address airline,
+        string calldata flight,
+        uint256 timestamp
+    ) external view virtual returns (bool);
+
+    function isLandedFlight(
+        address airline,
+        string calldata flight,
+        uint256 timestamp
+    ) external view virtual returns (bool);
+
+    function processFlightStatus(
+        address airline,
+        string calldata flight,
+        uint256 timestamp,
+        uint8 statusCode
+    ) external virtual;
+
+    function getFlightStatusCode(
+        address airline,
+        string calldata flight,
+        uint256 timestamp
+    ) external view virtual returns (uint8);
+
+    // Insurance
+    function isInsured(
+        address passenger,
+        address airline,
+        string calldata flight,
+        uint256 timestamp
+    ) external view virtual returns (bool);
+
+    // Passengers
+    function buy(
+        address airline,
+        string calldata flight,
+        uint256 timestamp,
+        address passenger,
+        uint256 amount,
+        uint256 multiplier
+    ) external payable virtual;
 }
