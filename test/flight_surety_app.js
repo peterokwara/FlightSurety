@@ -255,6 +255,21 @@ contract("FlightSurety App", async (accounts) => {
 
       assert.equal(reverted, true, "The flight is not registered")
     });
+
+    it('should not be able to buy insurance for the same flight that has been insured', async () => {
+      let reverted = false;
+
+      // Buy insurance from a non registered flight
+      try {
+        await config
+          .flightSuretyApp
+          .buyInsurance(flight3.airline, flight3.flight, flight3.timestamp, { from: passenger1, value: PASSENGER_INSURANCE_VALUE })
+      } catch (error) {
+        reverted = true;
+      }
+
+      assert.equal(reverted, true, "Passenger cannot buy insurance for the flight twice")
+    });
   });
 
 });
