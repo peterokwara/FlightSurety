@@ -9,12 +9,16 @@ contract("FlightSurety App", async (accounts) => {
   let config;
 
   const TIMESTAMP = Math.floor(Date.now() / 1000);
-
+  const PASSENGER_INSURANCE_VALUE_1 = web3.utils.toWei("1", "ether");
+  const PASSENGER_INSURANCE_VALUE_2 = web3.utils.toWei("0.5", "ether");
 
   let airline2 = accounts[2];
   let airline3 = accounts[3];
   let airline4 = accounts[4];
   let airline5 = accounts[5];
+
+  let passenger1 = accounts[10];
+  let passenger2 = accounts[11];
 
   let flight1 = {
     airline: airline2,
@@ -221,7 +225,6 @@ contract("FlightSurety App", async (accounts) => {
       assert.equal(reverted, true, "Airline cannot register a flight more than once")
     });
 
-
     it('should not register a flight if the airline is not funded', async () => {
       let reverted = false;
 
@@ -256,19 +259,59 @@ contract("FlightSurety App", async (accounts) => {
       assert.equal(reverted, true, "The flight is not registered")
     });
 
-    it('should not be able to buy insurance for the same flight that has been insured', async () => {
+    it('should be able to buy insurance', async () => {
+      let result = undefined;
+
+      // Register flight 2
+      try {
+        await config.flightSuretyApp
+          .registerFlight(flight2.flight, flight2.to, flight2.from, flight2.timestamp, { from: flight2.airline });
+      } catch (error) {
+        console.log(error);
+      }
+
+
+      // Buy insurance for flight 2
+      try {
+        await config.flightSuretyApp.buyInsurance(flight2.airline, flight2.flight, flight2.timestamp, { from: passenger1, value: PASSENGER_INSURANCE_VALUE_1 });
+      }
+      catch (e) {
+        console.log(e);
+      }
+
+      // Check if flight is insured
+      result = await config.flightSuretyData.isInsured.call(passenger1, flight2.airline, flight2.flight, flight2.timestamp);
+      assert.equal(result, true, "Passenger can buy insurance");
+    });
+
+    it('should not be able to buy insurance for the same flight twice', async () => {
       let reverted = false;
 
       // Buy insurance from a non registered flight
       try {
         await config
           .flightSuretyApp
-          .buyInsurance(flight3.airline, flight3.flight, flight3.timestamp, { from: passenger1, value: PASSENGER_INSURANCE_VALUE })
+          .buyInsurance(flight2.airline, flight2.flight, flight2.timestamp, { from: passenger1, value: PASSENGER_INSURANCE_VALUE_1 });
+
       } catch (error) {
         reverted = true;
       }
 
-      assert.equal(reverted, true, "Passenger cannot buy insurance for the flight twice")
+      assert.equal(reverted, true, "Passenger cannot buy insurance for the flight twice");
+    });
+
+    it('should be able to register more than one passenger for the same flight', async () => {
+      let result = undefined;
+      try {
+        await config
+          .flightSuretyApp
+          .buyInsurance(flight2.airline, flight2.flight, flight2.timestamp, { from: passenger2, value: PASSENGER_INSURANCE_VALUE_2 });
+      }
+      catch (error) {
+        console.log(e);
+      }
+      result = await config.flightSuretyData.isInsured.call(passenger2, flight2.airline, flight2.flight, flight2.timestamp);
+      assert.equal(result, true, "Passenger can buy insurance");
     });
   });
 
