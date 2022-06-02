@@ -238,6 +238,17 @@ contract FlightSuretyData {
         return false;
     }
 
+    /**
+     * @dev Check if the flight is registered
+     */
+    function getFlightStatusCode(
+        address airline,
+        string calldata flight,
+        uint256 timestamp
+    ) external view returns (uint8) {
+        return flights[getFlightKey(airline, flight, timestamp)].statusCode;
+    }
+
     // Event Definitions //
 
     event AirlineFunded(string name, address addr);
