@@ -11,6 +11,9 @@ contract("FlightSurety App", async (accounts) => {
   const TIMESTAMP = Math.floor(Date.now() / 1000);
   const PASSENGER_INSURANCE_VALUE_1 = web3.utils.toWei("1", "ether");
   const PASSENGER_INSURANCE_VALUE_2 = web3.utils.toWei("0.5", "ether");
+  const STATUS_CODE_LATE_AIRLINE = 20;
+  const TEST_ORACLES_COUNT = 20;
+  const ORACLES_OFFSET = 20;
 
   let airline2 = accounts[2];
   let airline3 = accounts[3];
@@ -312,6 +315,71 @@ contract("FlightSurety App", async (accounts) => {
       }
       result = await config.flightSuretyData.isInsured.call(passenger2, flight2.airline, flight2.flight, flight2.timestamp);
       assert.equal(result, true, "Passenger can buy insurance");
+    });
+  });
+
+  describe('For the (oracles)', function () {
+
+    it('should be able to  register oracles', async () => {
+      let fee = await config.flightSuretyApp.REGISTRATION_FEE.call();
+
+      // Loop through all the accounts
+      for (let a = 1; a < TEST_ORACLES_COUNT; a++) {
+
+        // Register an oracle
+        await config.flightSuretyApp.registerOracle({ from: accounts[a + ORACLES_OFFSET], value: fee });
+
+        // Check if oracle has been registered, comment line below this to check
+        let result = await config.flightSuretyApp.getMyIndexes.call({ from: accounts[a + ORACLES_OFFSET] });
+        // console.log(`Oracle Registered: ${result[0]}, ${result[1]}, ${result[2]}`);
+      }
+    });
+
+    it('should be able to request flight status', async () => {
+      let airline = flight2.airline;
+      let flight = flight2.flight;
+      let timestamp = flight2.timestamp;
+
+      // Submit a request for oracles to get status information for a flight
+      await config.flightSuretyApp.fetchFlightStatus(airline, flight, timestamp);
+
+      // Since the Index assigned to each test account is opaque by design
+      // loop through all the accounts and for each account, all its Indexes (indices?)
+      // and submit a response. The contract will reject a submission if it was
+      // not requested so while sub-optimal, it's a good test of that feature
+      for (let a = 1; a < TEST_ORACLES_COUNT; a++) {
+
+        // Get oracle information
+        let oracleIndexes = await config
+          .flightSuretyApp
+          .getMyIndexes
+          .call({ from: accounts[a + ORACLES_OFFSET] });
+        // console.log(`Oracle Indexes: ${oracleIndexes[0]}, ${oracleIndexes[1]}, ${oracleIndexes[2]}`)
+        for (let idx = 0; idx < 3; idx++) {
+          try {
+
+            // Submit a response, it will only be accepted if there is an Index match
+            await config
+              .flightSuretyApp
+              .submitOracleResponse(oracleIndexes[idx], airline, flight, timestamp, STATUS_CODE_LATE_AIRLINE, { from: accounts[a + ORACLES_OFFSET] });
+          }
+          catch (e) {
+            // Enable this when debugging
+            // console.log('\nError', idx, oracleIndexes[idx].toNumber(), flight, timestamp);
+          }
+        }
+      }
+    });
+
+    it('should be able to set flight status code correctly', async () => {
+
+      // Get the flight status code
+      let result = await config
+        .flightSuretyData
+        .getFlightStatusCode(flight2.airline, flight2.flight, flight2.timestamp, { from: config.owner });
+
+      // Check if the flight status code corresponds to being late
+      assert.equal(result.toNumber(), STATUS_CODE_LATE_AIRLINE, "Flight is late");
     });
   });
 

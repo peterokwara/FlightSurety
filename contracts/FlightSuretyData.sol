@@ -269,6 +269,13 @@ contract FlightSuretyData {
         uint256 amount,
         uint256 multiplier
     );
+    event FlightStatusUpdated(
+        address airline,
+        string flight,
+        uint256 timestamp,
+        uint8 statusCode
+    );
+    event InsureeCredited(address passenger, uint256 amount);
 
     constructor(string memory firstAirlineName, address firstAirlineAddress) {
         contractOwner = msg.sender;
@@ -394,6 +401,59 @@ contract FlightSuretyData {
             amount,
             multiplier
         );
+    }
+
+    /**
+     * @dev Process flights
+     */
+    function processFlightStatus(
+        address airline,
+        string calldata flight,
+        uint256 timestamp,
+        uint8 statusCode
+    ) external requireIsOperational requireIsCallerAuthorized {
+        //require(!this.isLandedFlight(airline, flight, timestamp), "Flight already landed");
+
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+
+        if (flights[flightKey].statusCode == STATUS_CODE_UNKNOWN) {
+            flights[flightKey].statusCode = statusCode;
+            if (statusCode == STATUS_CODE_LATE_AIRLINE) {
+                creditInsurees(airline, flight, timestamp);
+            }
+        }
+
+        emit FlightStatusUpdated(airline, flight, timestamp, statusCode);
+    }
+
+    /**
+     * @dev Credits payouts to insurees
+     */
+    function creditInsurees(
+        address airline,
+        string memory flight,
+        uint256 timestamp
+    ) internal requireIsOperational requireIsCallerAuthorized {
+        bytes32 flightKey = getFlightKey(airline, flight, timestamp);
+
+        for (
+            uint256 i = 0;
+            i < insuredPassengersPerFlight[flightKey].length;
+            i++
+        ) {
+            Insurance memory insurance = insuredPassengersPerFlight[flightKey][
+                i
+            ];
+
+            if (insurance.isCredited == false) {
+                insurance.isCredited = true;
+                uint256 amount = (insurance.amount * insurance.multiplier) /
+                    100;
+                pendingPayments[insurance.passenger] += amount;
+
+                emit InsureeCredited(insurance.passenger, amount);
+            }
+        }
     }
 
     /**
