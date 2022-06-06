@@ -381,6 +381,56 @@ contract("FlightSurety App", async (accounts) => {
       // Check if the flight status code corresponds to being late
       assert.equal(result.toNumber(), STATUS_CODE_LATE_AIRLINE, "Flight is late");
     });
+
+    describe('The(insurance) test passenger functionality', function () {
+
+      it('(insurance) insured amount credited is multiplied by the configured multiplier', async () => {
+        let amount1 = await config.flightSuretyData.getPendingPaymentAmount(passenger1);
+        let amount2 = await config.flightSuretyData.getPendingPaymentAmount(passenger2);
+        assert.equal(amount1, PASSENGER_INSURANCE_VALUE_1 * 1.5, "Insurance amount not as expected");
+        assert.equal(amount2, PASSENGER_INSURANCE_VALUE_2 * 1.5, "Insurance amount not as expected");
+      });
+
+      // it('(insurance) can withdraw amount', async () => {
+      //   let amount1 = await config.flightSuretyData.getPendingPaymentAmount(passenger1);
+      //   let balanceBeforePay1 = await web3.eth.getBalance(passenger1);
+      //   balanceBeforePay1 = await web3.utils.fromWei(balanceBeforePay1, "wei")
+
+      //   let amount2 = await config.flightSuretyData.getPendingPaymentAmount(passenger2);
+      //   let balanceBeforePay2 = await web3.eth.getBalance(passenger2);
+      //   balanceBeforePay2 = await web3.utils.fromWei(balanceBeforePay2, "wei")
+
+      //   // Convert to ether
+      //   amount1 = web3.utils.toWei(amount1, "wei");
+      //   amount2 = web3.utils.toWei(amount2, "wei");
+
+      //   try {
+      //     await config.flightSuretyApp.pay({ from: passenger1 });
+      //     await config.flightSuretyApp.pay({ from: passenger2 });
+      //   } catch (e) {
+      //     console.log(e);
+      //   }
+
+      //   let balanceAfterPay1 = await web3.eth.getBalance(passenger1);
+      //   balanceAfterPay1 = await web3.utils.fromWei(balanceAfterPay1, "wei");
+
+      //   let balanceAfterPay2 = await web3.eth.getBalance(passenger2);
+      //   balanceAfterPay2 = await web3.utils.fromWei(balanceAfterPay2, "wei");
+
+
+      //   console.log('1) Balance before pay: ' + balanceBeforePay1);
+      //   console.log('1) Balance afer pay: ' + balanceAfterPay1);
+      //   console.log('1) Difference: ' + (balanceAfterPay1 - balanceBeforePay1));
+      //   console.log('2) Balance before pay: ' + balanceBeforePay2);
+      //   console.log('2) Balance afer pay: ' + balanceAfterPay2);
+      //   console.log('2) Difference: ' + (balanceAfterPay2 - balanceBeforePay2));
+
+      //   assert
+      //     .equal((balanceAfterPay1 - balanceBeforePay1), (amount1).toString(10), "Cannot withdraw insurance from account");
+      //   assert
+      //     .equal((balanceAfterPay2 - balanceBeforePay2), (amount2).toString(10), "Cannot withdraw insurance from account");
+      // });
+    });
   });
 
 });

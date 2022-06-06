@@ -249,6 +249,17 @@ contract FlightSuretyData {
         return flights[getFlightKey(airline, flight, timestamp)].statusCode;
     }
 
+    /**
+     * @dev Return the pending payment
+     */
+    function getPendingPaymentAmount(address passenger)
+        external
+        view
+        returns (uint256)
+    {
+        return pendingPayments[passenger];
+    }
+
     // Event Definitions //
 
     event AirlineFunded(string name, address addr);
@@ -276,6 +287,7 @@ contract FlightSuretyData {
         uint8 statusCode
     );
     event InsureeCredited(address passenger, uint256 amount);
+    event AccountWithdrawn(address passenger, uint256 amount);
 
     constructor(string memory firstAirlineName, address firstAirlineAddress) {
         contractOwner = msg.sender;
@@ -454,6 +466,31 @@ contract FlightSuretyData {
                 emit InsureeCredited(insurance.passenger, amount);
             }
         }
+    }
+
+    /**
+     * @dev Transfers eligible payout funds to insuree
+     */
+    function pay(address passenger)
+        external
+        requireIsOperational
+        requireIsCallerAuthorized
+    {
+        // Checks
+        require(passenger == tx.origin, "Contracts not allowed");
+        require(
+            pendingPayments[passenger] > 0,
+            "No fund available for withdrawal"
+        );
+
+        // Effects
+        uint256 amount = pendingPayments[passenger];
+        pendingPayments[passenger] = 0;
+
+        // Cast address to payable address
+        payable(address(passenger)).transfer(amount);
+
+        emit AccountWithdrawn(passenger, amount);
     }
 
     /**

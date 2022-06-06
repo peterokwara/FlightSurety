@@ -476,6 +476,13 @@ contract FlightSuretyApp {
 
         emit OracleRequest(index, airline, flight, timestamp);
     }
+
+    /**
+     * @dev Transfers eligible payout funds to insuree
+     */
+    function pay() public requireIsOperational {
+        flightSuretyData.pay(msg.sender);
+    }
 }
 
 // FlightSurety data contract interface
@@ -556,4 +563,6 @@ abstract contract FlightSuretyData {
         uint256 amount,
         uint256 multiplier
     ) external payable virtual;
+
+    function pay(address passenger) external virtual;
 }
