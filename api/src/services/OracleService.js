@@ -1,4 +1,12 @@
-import EthereumService from "../services/EthereumService";
+const ServiceFactory = require("../factories/serviceFactory");
+
+// The random status codes
+const STATUS_CODE_UNKNOWN = 0;
+const STATUS_CODE_ON_TIME = 10;
+const STATUS_CODE_LATE_AIRLINE = 20;
+const STATUS_CODE_LATE_WEATHER = 30;
+const STATUS_CODE_LATE_TECHNICAL = 40;
+const STATUS_CODE_LATE_OTHER = 50;
 
 // Status codes array
 const statusCodes = [
@@ -10,16 +18,9 @@ const statusCodes = [
     STATUS_CODE_LATE_OTHER
 ]
 
-// The random status codes
-const STATUS_CODE_UNKNOWN = 0;
-const STATUS_CODE_ON_TIME = 10;
-const STATUS_CODE_LATE_AIRLINE = 20;
-const STATUS_CODE_LATE_WEATHER = 30;
-const STATUS_CODE_LATE_TECHNICAL = 40;
-const STATUS_CODE_LATE_OTHER = 50;
-
 let oracleAccounts = 20;
 let oracleAccountOffset = 20;
+
 
 class OracleService {
 
@@ -42,12 +43,15 @@ class OracleService {
      */
     async registerOracles() {
 
+        // Fetch the ethereum service
+        const ethereumService = ServiceFactory.get("ethereum-service");
+
         // Loop through 20 oracle accounts
         for (let index = 1; index < oracleAccounts; index++) {
 
             // Register an oracle
             try {
-                await EthereumService.registerOracles(index + oracleAccountOffset);
+                await ethereumService.registerOracle(index + oracleAccountOffset);
             } catch (error) {
                 console.log(error);
             }

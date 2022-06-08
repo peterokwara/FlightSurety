@@ -1,7 +1,7 @@
 const { ethers, BigNumber } = require("ethers");
-import FlightSuretyApp from '../../build/contracts/FlightSuretyApp.json';
-import FlightSuretyData from '../../build/contracts/FlightSuretyData.json';
-import config from "../data/config.local.json"
+const FlightSuretyApp = require('../../../build/contracts/FlightSuretyApp.json');
+const FlightSuretyData = require('../../../build/contracts/FlightSuretyData.json');
+const config = require("../data/config.local.json");
 
 /**
  * Class to handle all ethereum transactions/communications
@@ -12,7 +12,8 @@ class EthereumService {
         this.App = {
             web3Provider: null,
             accounts: [],
-            contracts: {},
+            flightSuretyApp: {},
+            flightSuretyData: {},
             owner: "0x0000000000000000000000000000000000000000"
         }
     }
@@ -23,17 +24,25 @@ class EthereumService {
     async initWeb3() {
 
         // Load web3 provider
-        this.web3Provider = new ethers.providers.Web3Provider(config.url.replace('http', 'ws'));
+        this.App.web3Provider = new ethers.providers.JsonRpcProvider(config.url);
 
         // Get all accounts
-        this.accounts = web3Provider.listAccounts();
+        this.App.accounts = await this.App.web3Provider.listAccounts();
 
         // Set the owner account
-        this.owner = this.accounts[0];
+        this.App.owner = await this.App.accounts[0];
+
+        // Get the signer
+        const signer = await this.App.web3Provider.getSigner();
 
         // Get an instance of the contract
-        this.App.contracts.flightSuretyApp = new ethers.Contract(FlightSuretyData.abi, config.appAddress);
-        this.App.contracts.flightSuretyData = new ethers.Contract(FlightSuretyApp.abi, config.dataAddress);
+        this.App.flightSuretyApp = new ethers
+            .Contract(config.appAddress, FlightSuretyApp.abi, signer);
+        this.App.flightSuretyData = new ethers
+            .Contract(config.dataAddress, FlightSuretyData.abi, signer);
+
+        // Authorize the data contract
+        await this.authorizeCaller(config.appAddress);
 
     }
 
@@ -42,7 +51,7 @@ class EthereumService {
      * Authorize the Flight Surety Data contract
      */
     async authorizeCaller() {
-        const { authorizeCaller } = this.App.contracts.flightSuretyData;
+        const { authorizeCaller } = this.App.flightSuretyData;
         try {
             const transaction = await authorizeCaller(config.appAddress, {
                 from: this.owner
@@ -55,19 +64,22 @@ class EthereumService {
     }
 
     /**
-     * Registers an oracle
+     * Registers a single oracle
      * @param index account index to register 
      */
     async registerOracle(index) {
-        const { registerOracle } = this.App.contracts.flightSuretyApp;
 
         // Set the registration amount to be one ether
-        let registrationAmount = BigNumber.from("1000000000000000000")
-        registrationAmount = formatUnits(registrationAmount);
+        let registrationAmount = ethers.utils.parseEther("1");
+
+        // Set the signer
+        let signer = this.App.web3Provider.getSigner(this.App.accounts[index]);
+
+        // Set the contract
+        let contract = this.App.flightSuretyApp.connect(signer);
 
         try {
-            const transaction = await registerOracle({
-                from: this.accounts[index],
+            const transaction = await contract.registerOracle({
                 value: registrationAmount,
             })
             await transaction.wait();
@@ -80,7 +92,7 @@ class EthereumService {
      * Get the indexes for a given oracle account
      * @param index account index to get indexes from
      */
-    getMyIdexes(index) {
+    async getMyIdexes(index) {
         const { getMyIdexes } = this.App.contracts.FlightSuretyApp;
         let result;
         try {
@@ -109,11 +121,12 @@ class EthereumService {
      * @param timestamp Time of the flight
      * @param statusCode The status code of the flight
      */
-    submitOracleResponse(oracle, index, airline, flight, timestamp, statusCode) {
+    async submitOracleResponse(oracle, index, airline, flight, timestamp, statusCode) {
         const { submitOracleResponse } = this.App.contracts.FlightSuretyApp;
         try {
-            const transaction = await submitOracleResponse(index, airline, flight, timestamp, statusCode,
-                { from: oracle });
+            // const transaction = await submitOracleResponse(index, airline, flight, timestamp, statusCode,
+            //     { from: oracle });
+            const transaction = await submitOracleResponse.connect(oracle).sign(index, airline, flight, timestamp, statusCode)
             await transaction.wait();
         } catch (error) {
             console.log(error)
