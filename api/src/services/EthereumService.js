@@ -117,18 +117,20 @@ class EthereumService {
     /**
      * Function to submit an oracle response
      * @param oracle Registered oracles
-     * @param index Orcle indexes
-     * @param airline Address of the airline
-     * @param flight The name of the flight
-     * @param timestamp Time of the flight
-     * @param statusCode The status code of the flight
+     * @param oracleResponse Oracle responses
      */
-    async submitOracleResponse(oracle, index, airline, flight, timestamp, statusCode) {
-        const { submitOracleResponse } = this.App.contracts.FlightSuretyApp;
+    async submitOracleResponse(oracle, oracleResponse) {
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(oracle);
+
+        // Set the contract
+        const contract = this.App.flightSuretyApp.connect(signer);
+
         try {
-            // const transaction = await submitOracleResponse(index, airline, flight, timestamp, statusCode,
-            //     { from: oracle });
-            const transaction = await submitOracleResponse.connect(oracle).sign(index, airline, flight, timestamp, statusCode)
+            console.log("Submitting oracle response");
+            const transaction = await contract
+                .submitOracleResponse(oracleResponse.index, oracleResponse.airline, oracleResponse.flight, oracleResponse.timestamp, oracleResponse.statusCode)
             await transaction.wait();
         } catch (error) {
             console.log(error)
@@ -143,17 +145,44 @@ class EthereumService {
      */
     async oracleRequest() {
 
-        const request = this.flightSuretyApp.events.OracleRequest({ fromBlock: 0 }, (error, event) => {
+        // Get the block
+        const block = await this.App.web3Provider.getBlockNumber()
 
-            // Return an error if any
-            if (error) {
-                throw new Error(error);
+        try {
+            const requestEvent = await this.App.flightSuretyApp
+                .queryFilter('OracleRequest', block - 4, block);
+
+            return {
+                index: requestEvent[0].args[0],
+                airline: requestEvent[0].args[1],
+                flight: requestEvent[0].args[2],
+                timestamp: requestEvent[0].args[3]
             }
+        } catch (error) {
+            console.log(error);
+        }
+        // return request.returnValue;
+    }
 
-            return event;
-        });
+    /**
+     * Fetch flight status (test)
+     */
+    async fetchFlightStatus() {
 
-        return request.returnValue;
+        let airline = this.App.accounts[2];
+        let flight = "5J 814";
+        let timestamp = Math.floor(Date.now() / 1000);
+
+        const { fetchFlightStatus } = this.App.flightSuretyApp;
+
+        try {
+            const transaction = await fetchFlightStatus(airline, flight, timestamp, {
+                from: this.App.owner
+            })
+        }
+        catch (error) {
+            console.log(error);
+        }
     }
 }
 

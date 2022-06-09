@@ -18,7 +18,7 @@ const statusCodes = [
     STATUS_CODE_LATE_OTHER
 ]
 
-let oracleAccounts = 5;
+let oracleAccounts = 20;
 let oracleAccountOffset = 20;
 
 
@@ -26,7 +26,14 @@ class OracleService {
 
     constructor() {
         this.App = {
-            oracles: []
+            oracles: [],
+            oracleResponse: {
+                index: "",
+                airline: "",
+                flight: "",
+                timestamp: "",
+                statusCode: ""
+            }
         }
     }
 
@@ -89,19 +96,48 @@ class OracleService {
      */
     async submitResponse() {
 
-        // Get the oracle request
-        const request = await EthereumService.oracleRequest();
+        // Fetch the ethereum service
+        const ethereumService = ServiceFactory.get("ethereum-service");
 
-        // Generate a status code
-        const statusCode = this.getRandomStatusCode();
+        console.log("Oracles", this.App.oracles)
 
         // Submit the oracle request
-        for (let index = 0; index < this.oracles.length; index++) {
-            if (oracles[a].index.includes(request.index)) {
-                await EthereumService
-                    .submitOracleResponse(oracles[index].address, request.index, request.airline, request.timestamp, statusCode);
+        for (let index = 0; index < this.App.oracles.length; index++) {
+            if (this.App.oracles[index].index.includes(this.App.oracleResponse.index)) {
+                await ethereumService
+                    .submitOracleResponse(this.App.oracles[index].address, this.App.oracleResponse);
             }
         }
+    }
+
+    /**
+     * Listen to submit oracle request
+     */
+    async oracleRequest() {
+        // Fetch the ethereum service
+        const ethereumService = ServiceFactory.get("ethereum-service");
+
+        try {
+            // Listen to the submit oracle request
+            const response = await ethereumService.oracleRequest();
+            this.App.oracleResponse = {
+                index: response.index,
+                airline: response.airline,
+                flight: response.flight,
+                timestamp: response.timestamp,
+                statusCode: await this.getRandomStatusCode()
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
+    async fetchFlightStatus() {
+        const flight = "PR 2543";
+        const airline = accounts[0];
+        const timestamp = Math.floor(Date.now() / 1000);
+
     }
 }
 

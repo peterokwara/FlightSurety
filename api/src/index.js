@@ -27,8 +27,17 @@ async function run() {
     // Register all 20 oracles
     await oracleService.registerOracles();
 
-    // Get the indexes of the registered oracles
+    // Get the indexes of the registered oracles and store them
     await oracleService.getOracleIndexes();
+
+    // Do a fetch flight status (test)
+    await ethereumService.fetchFlightStatus();
+
+    // Listen to the oracle request event
+    await oracleService.oracleRequest();
+
+    // Submit the oracle response
+    await oracleService.submitResponse()
 
 }
 
