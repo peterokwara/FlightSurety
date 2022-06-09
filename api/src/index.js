@@ -24,9 +24,11 @@ async function run() {
     // Initialize web3
     await ethereumService.initWeb3();
 
-
     // Register all 20 oracles
     await oracleService.registerOracles();
+
+    // Get the indexes of the registered oracles
+    await oracleService.getOracleIndexes();
 
 }
 

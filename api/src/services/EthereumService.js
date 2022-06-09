@@ -70,13 +70,13 @@ class EthereumService {
     async registerOracle(index) {
 
         // Set the registration amount to be one ether
-        let registrationAmount = ethers.utils.parseEther("1");
+        const registrationAmount = ethers.utils.parseEther("1");
 
         // Set the signer
-        let signer = this.App.web3Provider.getSigner(this.App.accounts[index]);
+        const signer = this.App.web3Provider.getSigner(this.App.accounts[index]);
 
         // Set the contract
-        let contract = this.App.flightSuretyApp.connect(signer);
+        const contract = this.App.flightSuretyApp.connect(signer);
 
         try {
             const transaction = await contract.registerOracle({
@@ -93,22 +93,24 @@ class EthereumService {
      * @param index account index to get indexes from
      */
     async getMyIdexes(index) {
-        const { getMyIdexes } = this.App.contracts.FlightSuretyApp;
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(this.App.accounts[index]);
+
+        // Set the contract
+        const contract = this.App.flightSuretyApp.connect(signer);
+
         let result;
         try {
-            const transaction = await getMyIdexes({
-                from: this.accounts[index],
-            })
-            result = await transaction.wait();
+            const transaction = await contract.getMyIndexes();
+            console.log(transaction);
+            return {
+                address: this.App.accounts[index],
+                index: transaction
+            }
         } catch (error) {
             console.log(error);
         }
-
-        // Return the indexes
-        return {
-            account: this.accounts[index],
-            index: result
-        };
     }
 
 

@@ -18,7 +18,7 @@ const statusCodes = [
     STATUS_CODE_LATE_OTHER
 ]
 
-let oracleAccounts = 20;
+let oracleAccounts = 5;
 let oracleAccountOffset = 20;
 
 
@@ -47,7 +47,7 @@ class OracleService {
         const ethereumService = ServiceFactory.get("ethereum-service");
 
         // Loop through 20 oracle accounts
-        for (let index = 1; index < oracleAccounts; index++) {
+        for (let index = 0; index < oracleAccounts; index++) {
 
             // Register an oracle
             try {
@@ -63,6 +63,9 @@ class OracleService {
     */
     async getOracleIndexes() {
 
+        // Fetch the ethereum service
+        const ethereumService = ServiceFactory.get("ethereum-service");
+
         // Loop through the 20 oracle accounts
         for (let index = 0; index < oracleAccounts; index++) {
 
@@ -70,10 +73,10 @@ class OracleService {
             try {
 
                 // Get indexes for the registered oracles
-                const result = await EthereumService.getMyIdexes(index);
+                const result = await ethereumService.getMyIdexes(index + oracleAccountOffset);
 
                 // Store the result
-                oracles.push(result);
+                this.App.oracles.push(result);
             } catch (error) {
                 console.log(error);
             }
