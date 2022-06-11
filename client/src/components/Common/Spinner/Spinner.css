@@ -1,0 +1,26 @@
+.hideSpinner {
+  display: none;
+}
+
+.displaySpinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  left: 40%;
+  top: 40%;
+  position: absolute;
+}
+
+@media (min-width: 768px) {
+  .displaySpinner {
+    left: 40%;
+    top: 30%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .displaySpinner {
+    left: 40%;
+    top: 30%;
+  }
+}

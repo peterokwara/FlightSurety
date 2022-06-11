@@ -1,0 +1,42 @@
+.hideModal {
+  display: none;
+}
+
+.displayModal {
+  background-color: #fefefe;
+  margin: 15% auto; /* 15% from the top and centered */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50%;
+  left: 20%;
+  top: 40%;
+  position: absolute;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
+  .displayModal {
+    left: 25%;
+    top: 30%;
+  }
+}
+
+@media (min-width: 1024px) {
+  .displayModal {
+    left: 25%;
+    top: 20%;
+  }
+}

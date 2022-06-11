@@ -1,6 +1,7 @@
 const express = require("express");
 const init = require("./initServices");
 const ServiceFactory = require("./factories/serviceFactory");
+const getOracle = require("./routes/oracle/get");
 
 const app = express();
 
@@ -30,16 +31,18 @@ async function run() {
     // Get the indexes of the registered oracles and store them
     await oracleService.getOracleIndexes();
 
-    // Do a fetch flight status (test)
-    await ethereumService.fetchFlightStatus();
+    // // Listen to the oracle request event
+    // await oracleService.oracleRequest();
 
-    // Listen to the oracle request event
-    await oracleService.oracleRequest();
-
-    // Submit the oracle response
-    await oracleService.submitResponse()
+    // // Submit the oracle response
+    // await oracleService.submitResponse()
 
 }
+
+// Monitor 
+app.post("/flightStatus", async function (request, response) {
+    await getOracle.get(request.body);
+});
 
 
 const port = process.env.PORT || 3000;
