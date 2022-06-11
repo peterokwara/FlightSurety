@@ -11,12 +11,12 @@ import Menu from "../Menu/Menu";
 class Header extends Component {
   render() {
     return (
-      <header className="top-0 h-max my-4 flex flex-col px-4 md:px-12 ">
+      <header className="top-0 h-max my-4 flex flex-col px-8 md:px-12 ">
         <div className="flex flex-row justify-center items-center py-2">
           <div className="flex flex-row items-center">
             <Menu />
             <h1 className="text-2xl ml-3 md:text-6xl font-bold pb-1 content-center ">
-              NdovuPay
+              Bima Ndege
             </h1>
           </div>
 
