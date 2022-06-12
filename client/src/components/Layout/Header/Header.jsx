@@ -12,10 +12,11 @@ class Header extends Component {
       <header className="top-0 h-max my-4 flex flex-col px-8 md:px-12 ">
         <div className="flex flex-row justify-center items-center py-2">
           <div className="flex flex-row items-center">
-            <Menu />
-            <h1 className="text-2xl ml-3 md:text-6xl font-bold pb-1 content-center ">
-              Bima Ndege
-            </h1>
+            <a href="/">
+              <h1 className="text-2xl md:text-6xl font-bold pb-1 content-center ">
+                Bima Ndege
+              </h1>
+            </a>
           </div>
 
           <div className="flex ml-auto">

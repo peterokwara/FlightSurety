@@ -12,6 +12,7 @@ class Button extends Component {
           focus:ring-blue-300 font-medium rounded-lg 
           text-sm px-5 py-2.5 text-center inline-flex items-center"
         onClick={this.props.buttonClick}
+        value={this.props.value}
       >
         {this.props.buttonName}
       </button>

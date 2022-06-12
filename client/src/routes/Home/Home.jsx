@@ -17,6 +17,7 @@ class Home extends Component {
 
     this.setState = this.setState.bind(this);
     this.onToggle = this.onToggle.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
   render() {
@@ -39,35 +40,64 @@ class Home extends Component {
           <hr class="mt-2 mb-4 border-gray-200 sm:mx-auto lg:my-8" />
           <div className="mb-6 flex flex-row items-center">
             <p className="mr-4">Register an Airline</p>
-            <Button buttonName="Register" />
+            <Button
+              buttonName="Register"
+              buttonClick={this.handleClick}
+              value="/register-airline"
+            ></Button>
           </div>
           <p className="text-xl">Flight</p>
           <hr class="mt-2 mb-4 border-gray-200 sm:mx-auto lg:my-8" />
           <div className="mb-6 flex flex-row items-center">
             <p className="mr-4">Fund a flight</p>
-            <Button buttonName="Fund" />
+            <Button
+              buttonName="Fund"
+              buttonClick={this.handleClick}
+              value="/fund-airline"
+            />
           </div>
           <div className="mb-6 flex flex-row items-center">
             <p className="mr-4">Register a Flight</p>
-            <Button buttonName="Register" />
+            <Button
+              buttonName="Register"
+              buttonClick={this.handleClick}
+              value="/register-flight"
+            />
           </div>
           <p className="text-xl">Passenger</p>
           <hr class="mt-2 mb-4 border-gray-200 sm:mx-auto lg:my-8" />
           <div className="mb-6 flex flex-row items-center">
             <p className="mr-4">Buy Insurance</p>
-            <Button buttonName="Buy" />
+            <Button
+              buttonName="Buy"
+              buttonClick={this.handleClick}
+              value="/buy-insurance"
+            />
           </div>
           <div className="mb-6 flex flex-row items-center">
             <p className="mr-4">Submit a Flight</p>
-            <Button buttonName="Submit" />
+            <Button
+              buttonName="Submit"
+              buttonClick={this.handleClick}
+              value="/submit-flight"
+            />
           </div>
           <div className="mb-6 flex flex-row items-center">
             <p className="mr-4">Claim insurance</p>
-            <Button buttonName="Claim" />
+            <Button
+              buttonName="Claim"
+              buttonClick={this.handleClick}
+              value="/claim-insurance"
+            />
           </div>
         </form>
       </React.Fragment>
     );
+  }
+
+  async handleClick(e) {
+    e.preventDefault();
+    window.location.href = e.target.value;
   }
 
   async onToggle(e) {
@@ -115,38 +145,5 @@ class Home extends Component {
       );
     }
   }
-
-  // async componentDidMount() {
-  //   // Get the ethereum service
-  //   const ethereumService = await ServiceFactory.get("ethereum-service");
-
-  //   const result = await ethereumService.isOperational();
-
-  //   console.log(result);
-  // }
-
-  // async onToggle() {
-  //   await this.setState(
-  //     {
-  //       isBusy: true,
-  //       message: "Initializing the data contract, please wait.",
-  //     },
-  //     async () => {
-  //       // Get the ethereum service
-  //       const ethereumService = await ServiceFactory.get("ethereum-service");
-
-  //       // Set the operational status
-  //       try {
-  //         await ethereumService.authorizeCaller();
-  //       } catch (error) {
-  //         throw new Error("Unable to authrize the contract");
-  //       }
-
-  //       this.setState({ isBusy: false, message: "" }, async () => {});
-  //     }
-  //   );
-
-  // this.setState({}, async () => {});
-  // }
 }
 export default Home;
