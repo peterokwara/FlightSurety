@@ -15,6 +15,8 @@ class Toggle extends Component {
           value=""
           id={this.props.id}
           className="sr-only peer"
+          onChange={this.props.change}
+          checked={this.props.checked ? true : false}
         />
         <div
           class="w-11 h-6 bg-gray-200 peer-focus:outline-none 

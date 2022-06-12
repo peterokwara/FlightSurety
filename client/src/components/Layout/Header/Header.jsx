@@ -1,6 +1,4 @@
 import { Component } from "react";
-import Button from "../../Common/Button/Button";
-import EthButton from "../../Common/EthButton/EthButton";
 import WalletButton from "../../Common/WalletButton/WalletButton";
 import Link from "../../Common/Link/Link";
 import Menu from "../Menu/Menu";

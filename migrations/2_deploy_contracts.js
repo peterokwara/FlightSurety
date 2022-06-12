@@ -20,5 +20,5 @@ module.exports = async (deployer, network, accounts) => {
     }
 
     fs.writeFileSync(__dirname + '/../api/src/data/config.local.json', JSON.stringify(config, null, '\t'), 'utf-8');
-
+    fs.writeFileSync(__dirname + '/../client/src/data/config.local.json', JSON.stringify(config, null, '\t'), 'utf-8');
 };
