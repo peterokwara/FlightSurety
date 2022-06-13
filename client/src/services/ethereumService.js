@@ -10,7 +10,7 @@ class EthereumService {
             accounts: [],
             flightSuretyApp: {},
             flightSuretyData: {},
-            owner: "0x0000000000000000000000000000000000000000",
+            owner: "",
             metamaskAccountID: ""
         }
     }
@@ -183,16 +183,13 @@ class EthereumService {
 
     }
 
-
-
     /**
-     * Authorize the caller of a contract
-     */
-    async authorizeCaller() {
+    * Register a flight
+    */
+    async registerFlight(flightName, from, to) {
 
+        let timestamp = Date.now()
         this.getMetamaskAccountID();
-
-        console.log("Error", this.App.metamaskAccountID)
 
         if (!this.App.metamaskAccountID) {
             let errorMessage = "Please ensure that your wallet is connected"
@@ -207,12 +204,57 @@ class EthereumService {
         const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
 
         // Set the contract
+        const contract = this.App.flightSuretyApp.connect(signer);
+
+        const { registerFlight } = contract;
+
+        try {
+            const transaction = await registerFlight(flightName, from, to, timestamp, { from: this.App.metamaskAccountID })
+            await transaction.wait();
+
+            return {
+                success: true,
+                error: ""
+            }
+        }
+        catch (error) {
+            console.log(error)
+            return {
+                success: false,
+                error: error.data.message
+            }
+        }
+
+    }
+
+
+
+    /**
+     * Authorize the caller of a contract
+     */
+    async authorizeCaller() {
+
+        this.getMetamaskAccountID();
+
+        if (!this.App.metamaskAccountID) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(this.App.owner);
+
+        // Set the contract
         const contract = this.App.flightSuretyData.connect(signer);
 
         const { authorizeCaller } = contract;
 
         try {
-            const transaction = await authorizeCaller(this.App.metamaskAccountID)
+            const transaction = await authorizeCaller(config.appAddress, { from: this.App.metamaskAccountID })
             await transaction.wait();
 
             return {
