@@ -15,7 +15,6 @@ class RegisterAirline extends Component {
       message: "Loading page, please wait",
       airlineName: "",
       airlineAddress: "",
-      registrer: "",
       modalMessage: "",
     };
 
@@ -38,10 +37,6 @@ class RegisterAirline extends Component {
           <div class="mb-6 ">
             <Label name="Airline Address" />
             <Input inputName="airlineAddress" inputChange={this.handleChange} />
-          </div>
-          <div class="mb-6 ">
-            <Label name="Registrer" />
-            <Input inputName="registrer" inputChange={this.handleChange} />
           </div>
           <Button buttonName="Register" buttonClick={this.handleClick} />
         </form>
@@ -73,11 +68,7 @@ class RegisterAirline extends Component {
       },
       async () => {
         // Input validation
-        if (
-          !this.state.airlineName ||
-          this.state.airlineAddress ||
-          this.state.registrer
-        ) {
+        if (!this.state.airlineName || !this.state.airlineAddress) {
           this.setState({
             isBusy: false,
             message: "",
@@ -95,8 +86,7 @@ class RegisterAirline extends Component {
         // Set the operational status
         const response = await ethereumService.registerAirline(
           this.state.airlineName,
-          this.state.airlineAddress,
-          this.state.registrer
+          this.state.airlineAddress
         );
 
         this.setState({

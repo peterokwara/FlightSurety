@@ -10,7 +10,8 @@ class EthereumService {
             accounts: [],
             flightSuretyApp: {},
             flightSuretyData: {},
-            owner: "0x0000000000000000000000000000000000000000"
+            owner: "0x0000000000000000000000000000000000000000",
+            metamaskAccountID: ""
         }
     }
 
@@ -59,6 +60,15 @@ class EthereumService {
     }
 
     /**
+     * Get Metamask Account ID
+     */
+    async getMetamaskAccountID() {
+        // Retrieve accounts
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        this.App.metamaskAccountID = accounts[0];
+    }
+
+    /**
      * Check if the FlightSurety Data Contract is operational
      * @returns Whether the Flight Surety Data contract is operational or not (boolean)
      */
@@ -77,44 +87,25 @@ class EthereumService {
     }
 
     /**
-     * Authorize the Flight Surety Data contract
-     */
-    async authorizeCaller() {
-        const { authorizeCaller } = this.App.flightSuretyData;
-        try {
-            const transaction = await authorizeCaller(config.appAddress, {
-                from: this.owner
-            })
-            await transaction.wait();
-        }
-        catch (error) {
-            console.log(error);
-        }
-    }
-
-    /**
-    * DeAuthorize the Flight Surety Data contract
-    */
-    async deauthorizeCaller() {
-        const { deauthorizeCaller } = this.App.flightSuretyData;
-        try {
-            const transaction = await deauthorizeCaller(config.appAddress, {
-                from: this.owner
-            })
-            await transaction.wait();
-        }
-        catch (error) {
-            console.log(error);
-        }
-    }
-
-    /**
      * Register an airline
      */
     async registerAirline(airlineName, airlineAddress, registrer) {
 
+        this.getMetamaskAccountID();
+
+        console.log("Error", this.App.metamaskAccountID)
+
+        if (!this.App.metamaskAccountID) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
         // Set the signer
-        const signer = this.App.web3Provider.getSigner(registrer);
+        const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
 
         // Set the contract
         const contract = this.App.flightSuretyApp.connect(signer);
@@ -131,7 +122,142 @@ class EthereumService {
         }
 
         try {
-            const transaction = await registerAirline(airlineName, airlineAddress, { from: registrer })
+            const transaction = await registerAirline(airlineName, airlineAddress, { from: this.App.metamaskAccountID })
+            await transaction.wait();
+
+            return {
+                success: true,
+                error: ""
+            }
+        }
+        catch (error) {
+            return {
+                success: false,
+                error: error.data.message
+            }
+        }
+
+    }
+
+    /**
+     * Fund an airline
+     */
+    async fundAirline(amount) {
+
+        this.getMetamaskAccountID();
+
+        console.log("Error", this.App.metamaskAccountID)
+
+        if (!this.App.metamaskAccountID) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
+
+        // Set the contract
+        const contract = this.App.flightSuretyApp.connect(signer);
+
+        const { fundAirline } = contract;
+
+        try {
+            const transaction = await fundAirline({ from: this.App.metamaskAccountID, value: ethers.utils.parseEther(amount) })
+            await transaction.wait();
+
+            return {
+                success: true,
+                error: ""
+            }
+        }
+        catch (error) {
+            return {
+                success: false,
+                error: error.data.message
+            }
+        }
+
+    }
+
+
+
+    /**
+     * Authorize the caller of a contract
+     */
+    async authorizeCaller() {
+
+        this.getMetamaskAccountID();
+
+        console.log("Error", this.App.metamaskAccountID)
+
+        if (!this.App.metamaskAccountID) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
+
+        // Set the contract
+        const contract = this.App.flightSuretyData.connect(signer);
+
+        const { authorizeCaller } = contract;
+
+        try {
+            const transaction = await authorizeCaller(this.App.metamaskAccountID)
+            await transaction.wait();
+
+            return {
+                success: true,
+                error: ""
+            }
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                success: false,
+                error: error.data.message
+            }
+        }
+
+    }
+
+    /**
+     * Set the operating status of a contract
+     */
+    async setOperatingStatus(state) {
+
+        this.getMetamaskAccountID();
+
+        console.log("Error", this.App.metamaskAccountID)
+
+        if (!this.App.metamaskAccountID) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
+
+        // Set the contract
+        const contract = this.App.flightSuretyApp.connect(signer);
+
+        const { setOperatingStatus } = contract;
+
+        try {
+            const transaction = await setOperatingStatus(state, { from: this.App.metamaskAccountID })
             await transaction.wait();
 
             return {
