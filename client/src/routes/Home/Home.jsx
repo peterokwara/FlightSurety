@@ -153,11 +153,17 @@ class Home extends Component {
           const ethereumService = await ServiceFactory.get("ethereum-service");
 
           // Set the operational status
-          try {
-            await ethereumService.setOperatingStatus(true);
-            this.setState({ isBusy: false, message: "", isChecked: true });
-          } catch (error) {
-            throw new Error("Unable to authorize the contract");
+          const response = await ethereumService.setOperatingStatus(true);
+
+          this.setState({
+            isBusy: false,
+            message: "",
+            isChecked: true,
+            modalMessage: response.error,
+          });
+
+          if (response.error) {
+            window.dialog.showModal();
           }
         }
       );
@@ -174,11 +180,17 @@ class Home extends Component {
           const ethereumService = await ServiceFactory.get("ethereum-service");
 
           // Set the operational status
-          try {
-            await ethereumService.setOperatingStatus(false);
-            this.setState({ isBusy: false, message: "", isChecked: false });
-          } catch (error) {
-            throw new Error("Unable to de-authorize the contract");
+          const response = await ethereumService.setOperatingStatus(false);
+
+          this.setState({
+            isBusy: false,
+            message: "",
+            isChecked: false,
+            modalMessage: response.error,
+          });
+
+          if (response.error) {
+            window.dialog.showModal();
           }
         }
       );

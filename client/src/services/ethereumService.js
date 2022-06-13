@@ -237,8 +237,6 @@ class EthereumService {
 
         this.getMetamaskAccountID();
 
-        console.log("Error", this.App.metamaskAccountID)
-
         if (!this.App.metamaskAccountID) {
             let errorMessage = "Please ensure that your wallet is connected"
 
@@ -252,7 +250,7 @@ class EthereumService {
         const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
 
         // Set the contract
-        const contract = this.App.flightSuretyApp.connect(signer);
+        const contract = this.App.flightSuretyData.connect(signer);
 
         const { setOperatingStatus } = contract;
 
@@ -266,6 +264,7 @@ class EthereumService {
             }
         }
         catch (error) {
+            console.log(error);
             return {
                 success: false,
                 error: error.data.message
