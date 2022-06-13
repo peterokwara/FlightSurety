@@ -111,8 +111,15 @@ class EthereumService {
     /**
      * Register an airline
      */
-    async registerAirline(airlineName, airlineAddress, registrer = config.firstAirlineAddress) {
-        const { registerAirline } = this.App.flightSuretyData;
+    async registerAirline(airlineName, airlineAddress, registrer) {
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(registrer);
+
+        // Set the contract
+        const contract = this.App.flightSuretyApp.connect(signer);
+
+        const { registerAirline } = contract;
 
         if (!registerAirline) {
             let errorMessage = "Please ensure that your wallet is connected"

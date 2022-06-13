@@ -40,7 +40,7 @@ class RegisterAirline extends Component {
             <Input inputName="airlineAddress" inputChange={this.handleChange} />
           </div>
           <div class="mb-6 ">
-            <Label name="Registrer (Optional)" />
+            <Label name="Registrer" />
             <Input inputName="registrer" inputChange={this.handleChange} />
           </div>
           <Button buttonName="Register" buttonClick={this.handleClick} />
@@ -72,6 +72,23 @@ class RegisterAirline extends Component {
         message: "Registering the airline, please wait",
       },
       async () => {
+        // Input validation
+        if (
+          !this.state.airlineName ||
+          this.state.airlineAddress ||
+          this.state.registrer
+        ) {
+          this.setState({
+            isBusy: false,
+            message: "",
+            modalMessage:
+              "Please fill in the input values first before proceeding",
+          });
+
+          window.dialog.showModal();
+          return;
+        }
+
         // Get the ethereum service
         const ethereumService = await ServiceFactory.get("ethereum-service");
 
@@ -81,8 +98,6 @@ class RegisterAirline extends Component {
           this.state.airlineAddress,
           this.state.registrer
         );
-
-        console.log("Error is", response.error);
 
         this.setState({
           isBusy: false,
