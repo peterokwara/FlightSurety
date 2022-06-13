@@ -107,6 +107,39 @@ class EthereumService {
             console.log(error);
         }
     }
+
+    /**
+     * Register an airline
+     */
+    async registerAirline(airlineName, airlineAddress, registrer = config.firstAirlineAddress) {
+        const { registerAirline } = this.App.flightSuretyData;
+
+        if (!registerAirline) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
+        try {
+            const transaction = await registerAirline(airlineName, airlineAddress, { from: registrer })
+            await transaction.wait();
+
+            return {
+                success: true,
+                error: ""
+            }
+        }
+        catch (error) {
+            return {
+                success: false,
+                error: error.data.message
+            }
+        }
+
+    }
 }
 
 module.exports = EthereumService;
