@@ -75,8 +75,27 @@ class EthereumService {
      * @returns Whether the Flight Surety Data contract is operational or not (boolean)
      */
     async isOperational() {
-        console.log("Contract", this.App.flightSuretyData)
-        // const { isOperational } = this.App.flightSuretyData;
+
+        if (!this.App.web3Provider) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
+        const { isOperational } = this.App.flightSuretyData;
+
+        if (!isOperational) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
         try {
             const transaction = await this.App.flightSuretyApp.isOperational(config.appAddress, {
                 from: this.owner
@@ -93,11 +112,7 @@ class EthereumService {
      */
     async registerAirline(airlineName, airlineAddress) {
 
-        this.getMetamaskAccountID();
-
-        console.log("Error", this.App.metamaskAccountID)
-
-        if (!this.App.metamaskAccountID) {
+        if (!this.App.web3Provider) {
             let errorMessage = "Please ensure that your wallet is connected"
 
             return {
@@ -105,6 +120,8 @@ class EthereumService {
                 error: errorMessage
             }
         }
+
+        await this.getMetamaskAccountID();
 
         // Set the signer
         const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
@@ -146,11 +163,7 @@ class EthereumService {
      */
     async fundAirline(amount) {
 
-        this.getMetamaskAccountID();
-
-        console.log("Error", this.App.metamaskAccountID)
-
-        if (!this.App.metamaskAccountID) {
+        if (!this.App.web3Provider) {
             let errorMessage = "Please ensure that your wallet is connected"
 
             return {
@@ -158,6 +171,8 @@ class EthereumService {
                 error: errorMessage
             }
         }
+
+        await this.getMetamaskAccountID();
 
         // Set the signer
         const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
@@ -190,9 +205,7 @@ class EthereumService {
     */
     async registerFlight(flightName, from, to, date) {
 
-        this.getMetamaskAccountID();
-
-        if (!this.App.metamaskAccountID) {
+        if (!this.App.web3Provider) {
             let errorMessage = "Please ensure that your wallet is connected"
 
             return {
@@ -200,6 +213,8 @@ class EthereumService {
                 error: errorMessage
             }
         }
+
+        await this.getMetamaskAccountID();
 
         // Set the signer
         const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
@@ -237,9 +252,7 @@ class EthereumService {
     */
     async isFlight(airline, flight, timestamp) {
 
-        this.getMetamaskAccountID();
-
-        if (!this.App.metamaskAccountID) {
+        if (!this.App.web3Provider) {
             let errorMessage = "Please ensure that your wallet is connected"
 
             return {
@@ -247,6 +260,8 @@ class EthereumService {
                 error: errorMessage
             }
         }
+
+        await this.getMetamaskAccountID();
 
         // Set the signer
         const signer = this.App.web3Provider.getSigner(this.App.owner);
@@ -283,9 +298,7 @@ class EthereumService {
      */
     async authorizeCaller() {
 
-        this.getMetamaskAccountID();
-
-        if (!this.App.metamaskAccountID) {
+        if (!this.App.web3Provider) {
             let errorMessage = "Please ensure that your wallet is connected"
 
             return {
@@ -293,6 +306,8 @@ class EthereumService {
                 error: errorMessage
             }
         }
+
+        await this.getMetamaskAccountID();
 
         // Set the signer
         const signer = this.App.web3Provider.getSigner(this.App.owner);
@@ -326,9 +341,8 @@ class EthereumService {
      */
     async setOperatingStatus(state) {
 
-        this.getMetamaskAccountID();
 
-        if (!this.App.metamaskAccountID) {
+        if (!this.App.web3Provider) {
             let errorMessage = "Please ensure that your wallet is connected"
 
             return {
@@ -337,11 +351,13 @@ class EthereumService {
             }
         }
 
+        await this.getMetamaskAccountID();
+
         // Set the signer
-        const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
+        const signer = await this.App.web3Provider.getSigner(this.App.metamaskAccountID);
 
         // Set the contract
-        const contract = this.App.flightSuretyData.connect(signer);
+        const contract = await this.App.flightSuretyData.connect(signer);
 
         const { setOperatingStatus } = contract;
 
@@ -370,9 +386,7 @@ class EthereumService {
      */
     async buyInsurance(airline, flight, amount, date) {
 
-        this.getMetamaskAccountID();
-
-        if (!this.App.metamaskAccountID) {
+        if (!this.App.web3Provider) {
             let errorMessage = "Please ensure that your wallet is connected"
 
             return {
@@ -380,6 +394,8 @@ class EthereumService {
                 error: errorMessage
             }
         }
+
+        await this.getMetamaskAccountID();
 
         // Set the signer
         const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
@@ -412,13 +428,11 @@ class EthereumService {
     }
 
     /**
-     * Set the operating status of a contract
+     * Fetch the status of a contract
      */
     async fetchFlightStatus(airline, flight, date) {
 
-        this.getMetamaskAccountID();
-
-        if (!this.App.metamaskAccountID) {
+        if (!this.App.web3Provider) {
             let errorMessage = "Please ensure that your wallet is connected"
 
             return {
@@ -426,6 +440,8 @@ class EthereumService {
                 error: errorMessage
             }
         }
+
+        await this.getMetamaskAccountID();
 
         // Set the signer
         const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
@@ -440,6 +456,142 @@ class EthereumService {
 
         try {
             const transaction = await fetchFlightStatus(airline, flight, timestamp);
+            await transaction.wait();
+
+            return {
+                success: true,
+                error: ""
+            }
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                success: false,
+                error: error.data.message
+            }
+        }
+
+    }
+
+    /**
+    * Pay the passenger
+    */
+    async pay() {
+
+        if (!this.App.web3Provider) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
+        await this.getMetamaskAccountID();
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
+
+        // Set the contract
+        const contract = this.App.flightSuretyApp.connect(signer);
+
+        const { pay } = contract;
+
+        try {
+            const transaction = await pay();
+            await transaction.wait();
+
+            return {
+                success: true,
+                error: ""
+            }
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                success: false,
+                error: error.data.message
+            }
+        }
+
+    }
+
+    /**
+    * Get the pending payment to the passenger
+    */
+    async getPendingPayment(airline, flight, date) {
+
+        if (!this.App.web3Provider) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
+        await this.getMetamaskAccountID();
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
+
+        // Set the contract
+        const contract = this.App.flightSuretyData.connect(signer);
+
+        const { getPendingPaymentAmount } = contract;
+
+        const timestamp = dateToTimestamp(date);
+        console.log("Timestamp is", timestamp)
+
+        try {
+            const transaction = await getPendingPaymentAmount(this.App.metamaskAccountID);
+            await transaction.wait();
+
+            return {
+                success: true,
+                error: ""
+            }
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                success: false,
+                error: error.data.message
+            }
+        }
+
+    }
+
+
+    /**
+    * Get the status code for a given flight
+    */
+    async getFlightStatusCode(airline, flight, date) {
+
+        if (!this.App.web3Provider) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
+        await this.getMetamaskAccountID();
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
+
+        // Set the contract
+        const contract = this.App.flightSuretyData.connect(signer);
+
+        const { getFlightStatusCode } = contract;
+
+        const timestamp = dateToTimestamp(date);
+        console.log("Timestamp is", timestamp)
+
+        try {
+            const transaction = await getFlightStatusCode(airline, flight, timestamp);
             await transaction.wait();
 
             return {

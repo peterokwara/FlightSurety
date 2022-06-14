@@ -12,7 +12,7 @@ class RegisterAirline extends Component {
 
     this.state = {
       isBusy: false,
-      message: "Loading page, please wait",
+      message: "",
       airlineName: "",
       airlineAddress: "",
       modalMessage: "",
@@ -65,6 +65,7 @@ class RegisterAirline extends Component {
       {
         isBusy: true,
         message: "Registering the airline, please wait",
+        modalMessage: "",
       },
       async () => {
         // Input validation

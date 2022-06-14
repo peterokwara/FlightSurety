@@ -5,7 +5,6 @@ import { Component } from "react";
 class Dialog extends Component {
   constructor(props) {
     super(props);
-
     this.handleClose = this.handleClose.bind(this);
   }
   render() {
