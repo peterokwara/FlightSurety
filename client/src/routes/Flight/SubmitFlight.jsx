@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import axios from "axios";
 import Input from "../../components/Forms/Input/Input";
 import Button from "../../components/Common/Button/Button";
 import Label from "../../components/Forms/Label/Label";
@@ -21,6 +22,7 @@ class SubmitFlight extends Component {
     this.setState = this.setState.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.triggerServer = this.triggerServer.bind(this);
   }
 
   render() {
@@ -29,15 +31,15 @@ class SubmitFlight extends Component {
         <form className="overflow-auto px-8">
           <Dialog message={this.state.modalMessage} />
           <h2 className="text-2xl py-4">Submit Flight</h2>
-          <div class="mb-6 ">
+          <div className="mb-6 ">
             <Label name="Airline Address" />
             <Input inputName="airlineAddress" inputChange={this.handleChange} />
           </div>
-          <div class="mb-6 ">
+          <div className="mb-6 ">
             <Label name="Flight" />
             <Input inputName="flightName" inputChange={this.handleChange} />
           </div>
-          <div class="mb-6 ">
+          <div className="mb-6 ">
             <Label name="Date" />
             <InputDate inputName="date" inputChange={this.handleChange} />
           </div>
@@ -105,9 +107,24 @@ class SubmitFlight extends Component {
 
         if (response.error) {
           window.dialog.showModal();
+          return;
         }
+
+        await this.triggerServer();
       }
     );
+  }
+
+  triggerServer() {
+    axios.get("http://localhost:8000/flightStatus").catch((error) => {
+      this.setState({
+        isBusy: false,
+        message: "",
+        modalMessage: error.message,
+      });
+
+      window.dialog.showModal();
+    });
   }
 }
 export default SubmitFlight;

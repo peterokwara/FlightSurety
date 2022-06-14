@@ -225,7 +225,6 @@ class EthereumService {
         const { registerFlight } = contract;
 
         const timestamp = dateToTimestamp(date);
-        console.log("Timestamp is", timestamp)
 
         try {
             const transaction = await registerFlight(flightName, from, to, timestamp, { from: this.App.metamaskAccountID })
@@ -318,7 +317,7 @@ class EthereumService {
         const { authorizeCaller } = contract;
 
         try {
-            const transaction = await authorizeCaller(config.appAddress, { from: this.App.metamaskAccountID })
+            const transaction = await authorizeCaller(config.appAddress)
             await transaction.wait();
 
             return {
@@ -406,7 +405,6 @@ class EthereumService {
         const { buyInsurance } = contract;
 
         const timestamp = dateToTimestamp(date);
-        console.log("Timestamp is", timestamp)
 
         try {
             const transaction = await buyInsurance(airline, flight, timestamp, { value: ethers.utils.parseEther(amount) })
@@ -452,7 +450,6 @@ class EthereumService {
         const { fetchFlightStatus } = contract;
 
         const timestamp = dateToTimestamp(date);
-        console.log("Timestamp is", timestamp)
 
         try {
             const transaction = await fetchFlightStatus(airline, flight, timestamp);
@@ -540,15 +537,14 @@ class EthereumService {
 
         const { getPendingPaymentAmount } = contract;
 
-        const timestamp = dateToTimestamp(date);
-        console.log("Timestamp is", timestamp)
-
         try {
             const transaction = await getPendingPaymentAmount(this.App.metamaskAccountID);
-            await transaction.wait();
+
+            console.log("Amount", ethers.utils.formatEther(transaction));
 
             return {
                 success: true,
+                amount: ethers.utils.formatEther(transaction),
                 error: ""
             }
         }
@@ -588,7 +584,6 @@ class EthereumService {
         const { getFlightStatusCode } = contract;
 
         const timestamp = dateToTimestamp(date);
-        console.log("Timestamp is", timestamp)
 
         try {
             const transaction = await getFlightStatusCode(airline, flight, timestamp);

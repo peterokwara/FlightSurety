@@ -12,11 +12,12 @@ class ClaimInsurance extends Component {
     this.state = {
       isBusy: false,
       message: "Loading page, please wait",
-      amount: "",
+      amount: "Get amount",
     };
 
     this.setState = this.setState.bind(this);
     this.handleClaim = this.handleClaim.bind(this);
+    this.handleGetAmount = this.handleGetAmount.bind(this);
     this.handleChange = this.handleChange.bind(this);
   }
 
@@ -29,14 +30,18 @@ class ClaimInsurance extends Component {
           <div class="mb-6">
             <Label name="Amount" />
             <div className="relative w-full">
-              <Input inputName="amount" inputChange={this.handleChange} />
+              <Input
+                inputName="amount"
+                inputChange={this.handleChange}
+                inputValue={this.state.amount}
+              />
               <button
                 className="absolute top-0 right-0 text-gray-900 bg-gray-100
                   hover:bg-gray-200 
                     focus:ring-4 focus:outline-none
                   focus:ring-blue-300 font-medium rounded-lg 
                     text-sm p-3 text-center inline-flex items-center"
-                onClick={this.props.handleClick}
+                onClick={this.handleGetAmount}
               >
                 Get Amount
               </button>
@@ -97,6 +102,39 @@ class ClaimInsurance extends Component {
           isBusy: false,
           message: "",
           modalMessage: response.error,
+        });
+
+        if (response.error) {
+          window.dialog.showModal();
+        }
+      }
+    );
+  }
+
+  /**
+   * Handle clicking the register button
+   * @param e The event emitted
+   */
+  async handleGetAmount(e) {
+    e.preventDefault();
+
+    await this.setState(
+      {
+        isBusy: true,
+        message: "Registering the airline, please wait",
+      },
+      async () => {
+        // Get the ethereum service
+        const ethereumService = await ServiceFactory.get("ethereum-service");
+
+        // Set the operational status
+        const response = await ethereumService.getPendingPayment();
+
+        this.setState({
+          isBusy: false,
+          message: "",
+          modalMessage: response.error,
+          amount: response.amount,
         });
 
         if (response.error) {

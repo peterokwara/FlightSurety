@@ -58,9 +58,7 @@ class EthereumService {
             })
             await transaction.wait();
         }
-        catch (error) {
-            console.log(error);
-        }
+        catch (error) { }
     }
 
     /**
@@ -100,10 +98,9 @@ class EthereumService {
         // Set the contract
         const contract = this.App.flightSuretyApp.connect(signer);
 
-        let result;
         try {
             const transaction = await contract.getMyIndexes();
-            console.log(transaction);
+            console.log("Indexes: ", transaction);
             return {
                 address: this.App.accounts[index],
                 index: transaction
@@ -152,6 +149,8 @@ class EthereumService {
             const requestEvent = await this.App.flightSuretyApp
                 .queryFilter('OracleRequest', block - 4, block);
 
+            console.log("Request Event: ", requestEvent[0].args[0], requestEvent[0].args[1], requestEvent[0].args[2], requestEvent[0].args[3])
+
             return {
                 index: requestEvent[0].args[0],
                 airline: requestEvent[0].args[1],
@@ -161,7 +160,6 @@ class EthereumService {
         } catch (error) {
             console.log(error);
         }
-        // return request.returnValue;
     }
 
     /**

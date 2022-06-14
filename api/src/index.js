@@ -40,12 +40,13 @@ async function run() {
 }
 
 // Monitor 
-app.post("/flightStatus", async function (request, response) {
+app.get("/flightStatus", async function (request, response) {
     await getOracle.get(request.body);
+    response.send("Success");
 });
 
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 8000;
 
 // designates what port the app will listen to for incoming requests
 app.listen(port, function () {

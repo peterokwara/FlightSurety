@@ -17,7 +17,6 @@ async function get() {
 
     // Submit the oracle response
     await oracleService.submitResponse();
-    console.log("endpoint called")
 }
 
 module.exports = { get };
