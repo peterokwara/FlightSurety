@@ -411,6 +411,52 @@ class EthereumService {
 
     }
 
+    /**
+     * Set the operating status of a contract
+     */
+    async fetchFlightStatus(airline, flight, date) {
+
+        this.getMetamaskAccountID();
+
+        if (!this.App.metamaskAccountID) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
+
+        // Set the contract
+        const contract = this.App.flightSuretyApp.connect(signer);
+
+        const { fetchFlightStatus } = contract;
+
+        const timestamp = dateToTimestamp(date);
+        console.log("Timestamp is", timestamp)
+
+        try {
+            const transaction = await fetchFlightStatus(airline, flight, timestamp);
+            await transaction.wait();
+
+            return {
+                success: true,
+                error: ""
+            }
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                success: false,
+                error: error.data.message
+            }
+        }
+
+    }
+
 
 
 

@@ -47,7 +47,6 @@ class RegisterFlight extends Component {
             <InputDate inputName="date" inputChange={this.handleChange} />
           </div>
           <Button
-            inputName="to"
             buttonName="Register Flight"
             buttonClick={this.handleClick}
           />

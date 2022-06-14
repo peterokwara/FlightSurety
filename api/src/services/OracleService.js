@@ -132,13 +132,6 @@ class OracleService {
         }
 
     }
-
-    async fetchFlightStatus() {
-        const flight = "PR 2543";
-        const airline = accounts[0];
-        const timestamp = Math.floor(Date.now() / 1000);
-
-    }
 }
 
 module.exports = OracleService;
