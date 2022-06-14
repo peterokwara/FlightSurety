@@ -2,6 +2,7 @@ const { ethers } = require("ethers");
 const FlightSuretyApp = require('../build/FlightSuretyApp.json');
 const FlightSuretyData = require('../build/FlightSuretyData.json');
 const config = require("../data/config.local.json");
+const { dateToTimestamp } = require("../utils/dateHandler");
 
 class EthereumService {
     constructor() {
@@ -11,7 +12,8 @@ class EthereumService {
             flightSuretyApp: {},
             flightSuretyData: {},
             owner: "",
-            metamaskAccountID: ""
+            metamaskAccountID: "",
+            timestamp: Date.now()
         }
     }
 
@@ -89,7 +91,7 @@ class EthereumService {
     /**
      * Register an airline
      */
-    async registerAirline(airlineName, airlineAddress, registrer) {
+    async registerAirline(airlineName, airlineAddress) {
 
         this.getMetamaskAccountID();
 
@@ -186,9 +188,8 @@ class EthereumService {
     /**
     * Register a flight
     */
-    async registerFlight(flightName, from, to) {
+    async registerFlight(flightName, from, to, date) {
 
-        let timestamp = Date.now()
         this.getMetamaskAccountID();
 
         if (!this.App.metamaskAccountID) {
@@ -208,9 +209,57 @@ class EthereumService {
 
         const { registerFlight } = contract;
 
+        const timestamp = dateToTimestamp(date);
+        console.log("Timestamp is", timestamp)
+
         try {
             const transaction = await registerFlight(flightName, from, to, timestamp, { from: this.App.metamaskAccountID })
             await transaction.wait();
+
+            return {
+                success: true,
+                error: ""
+            }
+        }
+        catch (error) {
+            console.log(error)
+            return {
+                success: false,
+                error: error.data.message
+            }
+        }
+
+    }
+
+
+    /**
+    * Register a flight
+    */
+    async isFlight(airline, flight, timestamp) {
+
+        this.getMetamaskAccountID();
+
+        if (!this.App.metamaskAccountID) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(this.App.owner);
+
+        // Set the contract
+        const contract = this.App.flightSuretyData.connect(signer);
+
+        const { isFlight } = contract;
+
+        try {
+            const transaction = await isFlight(airline, flight, timestamp)
+            console.log(airline, flight, timestamp)
+            console.log(transaction)
 
             return {
                 success: true,
@@ -314,6 +363,57 @@ class EthereumService {
         }
 
     }
+
+
+    /**
+     * Set the operating status of a contract
+     */
+    async buyInsurance(airline, flight, amount, date) {
+
+        this.getMetamaskAccountID();
+
+        if (!this.App.metamaskAccountID) {
+            let errorMessage = "Please ensure that your wallet is connected"
+
+            return {
+                success: false,
+                error: errorMessage
+            }
+        }
+
+        // Set the signer
+        const signer = this.App.web3Provider.getSigner(this.App.metamaskAccountID);
+
+        // Set the contract
+        const contract = this.App.flightSuretyApp.connect(signer);
+
+        const { buyInsurance } = contract;
+
+        const timestamp = dateToTimestamp(date);
+        console.log("Timestamp is", timestamp)
+
+        try {
+            const transaction = await buyInsurance(airline, flight, timestamp, { value: ethers.utils.parseEther(amount) })
+            await transaction.wait();
+
+            return {
+                success: true,
+                error: ""
+            }
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                success: false,
+                error: error.data.message
+            }
+        }
+
+    }
+
+
+
+
 }
 
 module.exports = EthereumService;

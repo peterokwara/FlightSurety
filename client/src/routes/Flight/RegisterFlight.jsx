@@ -4,6 +4,7 @@ import Button from "../../components/Common/Button/Button";
 import Label from "../../components/Forms/Label/Label";
 import ServiceFactory from "../../factories/serviceFactory";
 import Dialog from "../../components/Common/Dialog/Dialog";
+import InputDate from "../../components/Forms/InputDate/InputDate";
 
 class RegisterFlight extends Component {
   constructor(props) {
@@ -15,6 +16,7 @@ class RegisterFlight extends Component {
       flightName: "",
       from: "",
       to: "",
+      date: "",
     };
 
     this.setState = this.setState.bind(this);
@@ -39,6 +41,10 @@ class RegisterFlight extends Component {
           <div class="mb-6 ">
             <Label name="To" />
             <Input inputName="to" inputChange={this.handleChange} />
+          </div>
+          <div class="mb-6 ">
+            <Label name="Date" />
+            <InputDate inputName="date" inputChange={this.handleChange} />
           </div>
           <Button
             inputName="to"
@@ -74,7 +80,12 @@ class RegisterFlight extends Component {
       },
       async () => {
         // Input validation
-        if (!this.state.flightName || !this.state.from || !this.state.to) {
+        if (
+          !this.state.flightName ||
+          !this.state.from ||
+          !this.state.to ||
+          !this.state.date
+        ) {
           this.setState({
             isBusy: false,
             message: "",
@@ -93,7 +104,8 @@ class RegisterFlight extends Component {
         const response = await ethereumService.registerFlight(
           this.state.flightName,
           this.state.from,
-          this.state.to
+          this.state.to,
+          this.state.date
         );
 
         this.setState({
