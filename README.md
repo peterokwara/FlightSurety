@@ -83,7 +83,7 @@ To run the test cases within the truffle development environment, run:
 truffle test
 ```
 
-##### Frontend
+#### Frontend
 
 The npm packages need to be installed in the **client** directory by running
 
@@ -117,7 +117,7 @@ Once the installation process has been done, to run the frontend of the project,
 npm start
 ```
 
-##### Backend
+#### Backend
 
 The npm packages need to be installed in the **api** directory by running
 
