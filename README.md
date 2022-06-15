@@ -187,7 +187,7 @@ truffle test
 
 #### UI test
 
-UI testing is a bit complicated, to show the steps, a video can be found [here](https://youtu.be/rcc_JFbEx2o)
+UI testing is a bit complicated, to show the steps, a video can be found [here](https://youtu.be/rcc_JFbEx2o). Make sure the seed is uploaded to Metamask to use the accounts.
 
 #### Troubleshooting
 
