@@ -157,19 +157,37 @@ npm run start-dev
 
 ### Testing
 
-To test the full application (Local Node and UI):
+#### Truffle test
 
-- Run the Frontend and Backend as specified in the technology section.
-- Ensure the smart contract is deployed to your local test node. In my case, I used Ganache which runs on port **7545**
-- Import your account to Metamask. To do this, ensure you have metamask installed. Import the seed phrase that is provided by the local node into Metamask and ensure the accounts show up in the wallet ui.
-- Use the first account (normally marked as **Account 1**) to connect to the website. For some reason, it doesn't work with any other account, only the first account.
-- Ensure your wallet is connected by clicking **connect wallet** to **Account 1**.
-- Try going through the whole coffee export process by clicking the buttons (harvest, process, pack, sell) from the Farm Details page.
-- Move to the next page and do the same (buy, ship, receive, purchase) from the Product Details page.
-- Try to fetch items from the buffer from the Product Overview page.
-- Try to fetch the transaction events from the Transactions History page.
+Ensure Ganache is running
 
-Troubleshooting
+```console
+ganache -a 50 -m "friend collect coconut snow pretty car anchor cross purchase exact biology about"
+```
+
+To migrate the contract to the ethereum chain, running on the node, run:
+
+```console
+truffle migrate --reset
+```
+
+To run the test cases within the truffle development environment, run:
+
+```console
+truffle test
+```
+
+To run the test cases within the truffle development environment, run:
+
+```console
+truffle test
+```
+
+#### UI test
+
+UI testing is a bit complicated, to show the steps, a video can be found [here]()
+
+#### Troubleshooting
 
 Common issues:
 
