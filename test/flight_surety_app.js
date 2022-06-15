@@ -11,6 +11,7 @@ contract("FlightSurety App", async (accounts) => {
   const TIMESTAMP = Math.floor(Date.now() / 1000);
   const PASSENGER_INSURANCE_VALUE_1 = web3.utils.toWei("1", "ether");
   const PASSENGER_INSURANCE_VALUE_2 = web3.utils.toWei("0.5", "ether");
+
   const STATUS_CODE_LATE_AIRLINE = 20;
   const TEST_ORACLES_COUNT = 20;
   const ORACLES_OFFSET = 20;
@@ -384,27 +385,29 @@ contract("FlightSurety App", async (accounts) => {
 
   });
 
-  describe('The(insurance) test passenger functionality', function () {
+  describe('For the (insurance)', function () {
 
-    it('(insurance) insured amount credited is multiplied by the configured multiplier', async () => {
+    it('Passenger insured amount credited is multiplied by the configured multiplier', async () => {
       let amount1 = await config.flightSuretyData.getPendingPaymentAmount(passenger1);
       let amount2 = await config.flightSuretyData.getPendingPaymentAmount(passenger2);
       assert.equal(amount1, PASSENGER_INSURANCE_VALUE_1 * 1.5, "Insurance amount not as expected");
       assert.equal(amount2, PASSENGER_INSURANCE_VALUE_2 * 1.5, "Insurance amount not as expected");
     });
 
-    it('(insurance) can withdraw amount', async () => {
+    it('Passenger can withdraw amount', async () => {
       let amount1 = await config.flightSuretyData.getPendingPaymentAmount(passenger1);
-      let balanceBeforePay1 = await web3.eth.getBalance(passenger1);
-      balanceBeforePay1 = await web3.utils.fromWei(balanceBeforePay1, "wei")
 
       let amount2 = await config.flightSuretyData.getPendingPaymentAmount(passenger2);
+
+      let balanceBeforePay1 = await web3.eth.getBalance(passenger1);
+      balanceBeforePay1 = await Number(web3.utils.fromWei(balanceBeforePay1, "ether"));
+
       let balanceBeforePay2 = await web3.eth.getBalance(passenger2);
-      balanceBeforePay2 = await web3.utils.fromWei(balanceBeforePay2, "wei")
+      balanceBeforePay2 = await Number(web3.utils.fromWei(balanceBeforePay2, "ether"));
 
       // Convert to ether
-      // amount1 = web3.utils.toWei(amount1, "wei");
-      // amount2 = web3.utils.toWei(amount2, "wei");
+      amount1 = Number(web3.utils.fromWei(amount1, "ether"));
+      amount2 = Number(web3.utils.fromWei(amount2, "ether"));
 
       try {
         await config.flightSuretyApp.pay({ from: passenger1 });
@@ -414,10 +417,10 @@ contract("FlightSurety App", async (accounts) => {
       }
 
       let balanceAfterPay1 = await web3.eth.getBalance(passenger1);
-      // balanceAfterPay1 = await web3.utils.fromWei(balanceAfterPay1, "wei");
+      balanceAfterPay1 = await Number(web3.utils.fromWei(balanceAfterPay1, "ether"));
 
       let balanceAfterPay2 = await web3.eth.getBalance(passenger2);
-      // balanceAfterPay2 = await web3.utils.fromWei(balanceAfterPay2, "wei");
+      balanceAfterPay2 = await Number(web3.utils.fromWei(balanceAfterPay2, "ether"));
 
 
       console.log('1) Balance before pay: ' + balanceBeforePay1);
@@ -427,16 +430,11 @@ contract("FlightSurety App", async (accounts) => {
       console.log('2) Balance afer pay: ' + balanceAfterPay2);
       console.log('2) Difference: ' + (balanceAfterPay2 - balanceBeforePay2));
 
-      console.log("Check type", typeof (amount1))
-      console.log("Check type", typeof (amount2))
-      console.log("Check type", typeof (balanceBeforePay1))
-      console.log("Check type", typeof (balanceAfterPay1))
-
-
+      // Use .toFixed() to round up values, since test returns approximate values
       assert
-        .closeTo((balanceAfterPay1 - balanceBeforePay1), (amount1), "Cannot withdraw insurance from account");
+        .equal((balanceAfterPay1 - balanceBeforePay1).toFixed(1), (amount1), "Cannot withdraw insurance from account");
       assert
-        .closeTo((balanceAfterPay2 - balanceBeforePay2), (amount2), "Cannot withdraw insurance from account");
+        .equal((balanceAfterPay2 - balanceBeforePay2).toFixed(2), (amount2), "Cannot withdraw insurance from account");
     });
   });
 
