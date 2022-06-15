@@ -31,7 +31,7 @@ Ethereum Dapp that allows users to register for Flight Insurance in case somethi
 
 #### Technology Used
 
-This project uses: - ReactJS - Tailwind CSS - CSS - JS - NodeJS - EthersJS - Truffle
+This project uses: - ReactJS - Tailwind CSS - CSS - JS - NodeJS - EthersJS - Truffle - Ganache 
 
 **React-JS** - Easy to set up single page application with multiple pages.
 
@@ -59,7 +59,7 @@ nvm use node
 
 To compile the smart contract, within the truffle development environment, run:
 
-```console
+```bash
 truffle compile
 ```
 
@@ -67,19 +67,19 @@ To run a local ethereum node, where you will deploy your contracts to, run ganac
 
 **Warning** Do not use the seed below in a public network.
 
-```
+```bash
 ganache -a 50 -m "friend collect coconut snow pretty car anchor cross purchase exact biology about"
 ```
 
 To migrate the contract to the ethereum chain, running on the node, run:
 
-```
+```bash
 truffle migrate --reset
 ```
 
 To run the test cases within the truffle development environment, run:
 
-```console
+```bash
 truffle test
 ```
 
@@ -87,19 +87,19 @@ truffle test
 
 The npm packages need to be installed in the **client** directory by running
 
-```console
+```bash
 cd client
 ```
 
 and then
 
-```console
+```bash
 npm install
 ```
 
 Once the installation process has been done, to run the frontend of the project, you can run.
 
-```console
+```bash
 npm start
 ```
 
@@ -159,7 +159,7 @@ Troubleshooting
 
 Common issues:
 
-Tests fail to pass, showing this error
+**Error** when running test
 
 ```
  1) Contract: FlightSurety App
@@ -182,7 +182,7 @@ Tests fail to pass, showing this error
       at processTicksAndRejections (node:internal/process/task_queues:95:5)
 ```
 
-Solution: Try running the test a couple of times. Sometimes this happens because the response has less than 3 indexes. If you try and run a couple of times, it should work.
+**Solution:** Try running the test a couple of times. Sometimes this happens because the response has less than 3 indexes. If you try and run a couple of times, it should work.
 
 ### CONTRIBUTING
 
@@ -200,7 +200,7 @@ For any concerns, please open an [issue](https://github.com/peterokwara/FlightSu
 
 ### Versions
 
-- Version 1.0 DATE 08/05/2022
+- Version 1.0 DATE 15/06/2022
 
 ### Contact Information
 
@@ -213,5 +213,3 @@ If you have found any bugs, or have any feedback or questions and or want to pos
 <br>
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?style=for-the-badge)](https://github.com/peterokwara/FlightSurety/blob/master/LICENSE)
-
-
