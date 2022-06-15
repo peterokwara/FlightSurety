@@ -50,7 +50,7 @@ This project uses: - ReactJS - Tailwind CSS - CSS - JS - NodeJS - EthersJS - Tru
 
 The whole project runs on the latest nodejs version. Anything above `v16` should work. To do this, ensure you have [node version manager](https://github.com/nvm-sh/nvm) installed. Once installed you can then run.
 
-```bash
+```console
 nvm install node
 nvm use node
 ```
@@ -59,7 +59,7 @@ nvm use node
 
 To compile the smart contract, within the truffle development environment, run:
 
-```bash
+```console
 truffle compile
 ```
 
@@ -67,19 +67,19 @@ To run a local ethereum node, where you will deploy your contracts to, run ganac
 
 **Warning** Do not use the seed below in a **public network**.
 
-```bash
+```console
 ganache -a 50 -m "friend collect coconut snow pretty car anchor cross purchase exact biology about"
 ```
 
 To migrate the contract to the ethereum chain, running on the node, run:
 
-```bash
+```console
 truffle migrate --reset
 ```
 
 To run the test cases within the truffle development environment, run:
 
-```bash
+```console
 truffle test
 ```
 
@@ -87,19 +87,19 @@ truffle test
 
 The npm packages need to be installed in the **client** directory by running
 
-```bash
+```console
 cd client
 ```
 
 and then
 
-```bash
+```console
 npm install
 ```
 
 The client depend on a couple of files to work properly. One of them is the contract abi that should be located in the `client/src/build` directory. To generate the contract abi in the correct location, run:
 
-```
+```console
 truffle compile --contracts_build_directory=./client/src/build
 ```
 
@@ -113,7 +113,7 @@ truffle migrate --reset
 
 Once the installation process has been done, to run the frontend of the project, you can run.
 
-```bash
+```console
 npm start
 ```
 
@@ -133,7 +133,7 @@ npm install
 
 The backend api depend on a couple of files to work properly. One of them is the contract abi that should be located in the `api/src/build` directory. To generate the contract abi in the correct location, run:
 
-```
+```console
 truffle compile --contracts_build_directory=./api/src/build
 ```
 
