@@ -66,12 +66,13 @@ class FundAirline extends Component {
   }
 
   /**
-   * Handle clicking the register button
+   * Handle clicking the fund button
    * @param e The event emitted
    */
   async handleClick(e) {
     e.preventDefault();
 
+    // Show spinner and status
     await this.setState(
       {
         isBusy: true,
@@ -80,6 +81,7 @@ class FundAirline extends Component {
       async () => {
         // Input validation
         if (!this.state.amount) {
+          // Show spinner and status
           this.setState({
             isBusy: false,
             message: "",
@@ -94,15 +96,17 @@ class FundAirline extends Component {
         // Get the ethereum service
         const ethereumService = await ServiceFactory.get("ethereum-service");
 
-        // Set the operational status
+        // Fund the airline
         const response = await ethereumService.fundAirline(this.state.amount);
 
+        // Hide spinner and status
         this.setState({
           isBusy: false,
           message: "",
           modalMessage: response.error,
         });
 
+        // Show a dialog in case there is an error
         if (response.error) {
           window.dialog.showModal();
         }

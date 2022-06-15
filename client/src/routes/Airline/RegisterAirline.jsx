@@ -61,6 +61,7 @@ class RegisterAirline extends Component {
   async handleClick(e) {
     e.preventDefault();
 
+    // Show spinner and status
     await this.setState(
       {
         isBusy: true,
@@ -70,6 +71,7 @@ class RegisterAirline extends Component {
       async () => {
         // Input validation
         if (!this.state.airlineName || !this.state.airlineAddress) {
+          // Show spinner and status
           this.setState({
             isBusy: false,
             message: "",
@@ -84,18 +86,20 @@ class RegisterAirline extends Component {
         // Get the ethereum service
         const ethereumService = await ServiceFactory.get("ethereum-service");
 
-        // Set the operational status
+        // Register an airline
         const response = await ethereumService.registerAirline(
           this.state.airlineName,
           this.state.airlineAddress
         );
 
+        // Hide spinner and status
         this.setState({
           isBusy: false,
           message: "",
           modalMessage: response.error,
         });
 
+        // Show a dialog in case there is an error
         if (response.error) {
           window.dialog.showModal();
         }

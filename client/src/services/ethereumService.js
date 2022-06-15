@@ -4,6 +4,9 @@ const FlightSuretyData = require('../build/FlightSuretyData.json');
 const config = require("../data/config.local.json");
 const { dateToTimestamp } = require("../utils/dateHandler");
 
+/**
+ * Class to handle ethereum transactions
+ */
 class EthereumService {
     constructor() {
         this.App = {
@@ -76,6 +79,7 @@ class EthereumService {
      */
     async isOperational() {
 
+        // Way to check if wallet is connected
         if (!this.App.web3Provider) {
             let errorMessage = "Please ensure that your wallet is connected"
 
@@ -85,17 +89,7 @@ class EthereumService {
             }
         }
 
-        const { isOperational } = this.App.flightSuretyData;
-
-        if (!isOperational) {
-            let errorMessage = "Please ensure that your wallet is connected"
-
-            return {
-                success: false,
-                error: errorMessage
-            }
-        }
-
+        // Call the contract
         try {
             const transaction = await this.App.flightSuretyApp.isOperational(config.appAddress, {
                 from: this.owner
@@ -112,6 +106,7 @@ class EthereumService {
      */
     async registerAirline(airlineName, airlineAddress) {
 
+        // Way to check if wallet is connected
         if (!this.App.web3Provider) {
             let errorMessage = "Please ensure that your wallet is connected"
 
@@ -121,6 +116,7 @@ class EthereumService {
             }
         }
 
+        // Get address of the current account in metamask
         await this.getMetamaskAccountID();
 
         // Set the signer
@@ -140,6 +136,7 @@ class EthereumService {
             }
         }
 
+        // Call the contract
         try {
             const transaction = await registerAirline(airlineName, airlineAddress, { from: this.App.metamaskAccountID })
             await transaction.wait();
@@ -163,6 +160,7 @@ class EthereumService {
      */
     async fundAirline(amount) {
 
+        // Way to check if wallet is connected
         if (!this.App.web3Provider) {
             let errorMessage = "Please ensure that your wallet is connected"
 
@@ -172,6 +170,7 @@ class EthereumService {
             }
         }
 
+        // Get address of the current account in metamask
         await this.getMetamaskAccountID();
 
         // Set the signer
@@ -182,6 +181,7 @@ class EthereumService {
 
         const { fundAirline } = contract;
 
+        // Call the contract
         try {
             const transaction = await fundAirline({ from: this.App.metamaskAccountID, value: ethers.utils.parseEther(amount) })
             await transaction.wait();
@@ -226,6 +226,7 @@ class EthereumService {
 
         const timestamp = dateToTimestamp(date);
 
+        // Call the contract
         try {
             const transaction = await registerFlight(flightName, from, to, timestamp, { from: this.App.metamaskAccountID })
             await transaction.wait();

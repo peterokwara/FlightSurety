@@ -81,6 +81,7 @@ class ClaimInsurance extends Component {
       async () => {
         // Input validation
         if (!this.state.amount) {
+          // Show spinner and status
           this.setState({
             isBusy: false,
             message: "",
@@ -104,6 +105,7 @@ class ClaimInsurance extends Component {
           modalMessage: response.error,
         });
 
+        // Show a dialog in case there is an error
         if (response.error) {
           window.dialog.showModal();
         }
@@ -118,6 +120,7 @@ class ClaimInsurance extends Component {
   async handleGetAmount(e) {
     e.preventDefault();
 
+    // Show spinner and status
     await this.setState(
       {
         isBusy: true,
@@ -130,6 +133,7 @@ class ClaimInsurance extends Component {
         // Set the operational status
         const response = await ethereumService.getPendingPayment();
 
+        // Hide spinner and status
         this.setState({
           isBusy: false,
           message: "",
@@ -137,6 +141,7 @@ class ClaimInsurance extends Component {
           amount: response.amount,
         });
 
+        // Show a dialog in case there is an error
         if (response.error) {
           window.dialog.showModal();
         }

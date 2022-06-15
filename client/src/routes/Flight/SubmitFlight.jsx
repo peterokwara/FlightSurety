@@ -66,6 +66,7 @@ class SubmitFlight extends Component {
   async handleClick(e) {
     e.preventDefault();
 
+    // Show spinner and status
     await this.setState(
       {
         isBusy: true,
@@ -78,6 +79,7 @@ class SubmitFlight extends Component {
           !this.state.flightName ||
           !this.state.date
         ) {
+          // Show spinner and status
           this.setState({
             isBusy: false,
             message: "",
@@ -92,19 +94,21 @@ class SubmitFlight extends Component {
         // Get the ethereum service
         const ethereumService = await ServiceFactory.get("ethereum-service");
 
-        // Set the operational status
+        // Fetch the flight status
         const response = await ethereumService.fetchFlightStatus(
           this.state.airlineAddress,
           this.state.flightName,
           this.state.date
         );
 
+        // Hide spinner and status
         this.setState({
           isBusy: false,
           message: "",
           modalMessage: response.error,
         });
 
+        // Show a dialog in case there is an error
         if (response.error) {
           window.dialog.showModal();
           return;
@@ -115,6 +119,9 @@ class SubmitFlight extends Component {
     );
   }
 
+  /**
+   * Call the backend server to trigger monitoring
+   */
   triggerServer() {
     axios.get("http://localhost:8000/flightStatus").catch((error) => {
       this.setState({

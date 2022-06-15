@@ -46,10 +46,7 @@ class RegisterFlight extends Component {
             <Label name="Date" />
             <InputDate inputName="date" inputChange={this.handleChange} />
           </div>
-          <Button
-            buttonName="Register Flight"
-            buttonClick={this.handleClick}
-          />
+          <Button buttonName="Register Flight" buttonClick={this.handleClick} />
         </form>
       </React.Fragment>
     );
@@ -72,6 +69,7 @@ class RegisterFlight extends Component {
   async handleClick(e) {
     e.preventDefault();
 
+    // Show spinner and status
     await this.setState(
       {
         isBusy: true,
@@ -85,6 +83,7 @@ class RegisterFlight extends Component {
           !this.state.to ||
           !this.state.date
         ) {
+          // Show spinner and status
           this.setState({
             isBusy: false,
             message: "",
@@ -99,7 +98,7 @@ class RegisterFlight extends Component {
         // Get the ethereum service
         const ethereumService = await ServiceFactory.get("ethereum-service");
 
-        // Set the operational status
+        // Register a flight
         const response = await ethereumService.registerFlight(
           this.state.flightName,
           this.state.from,
@@ -107,12 +106,14 @@ class RegisterFlight extends Component {
           this.state.date
         );
 
+        // Hide spinner and status
         this.setState({
           isBusy: false,
           message: "",
           modalMessage: response.error,
         });
 
+        // Show a dialog in case there is an error
         if (response.error) {
           window.dialog.showModal();
         }

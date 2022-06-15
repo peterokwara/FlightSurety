@@ -85,6 +85,7 @@ class BuyInsurance extends Component {
           !this.state.amount ||
           !this.state.date
         ) {
+          // Show spinner and status
           this.setState({
             isBusy: false,
             message: "",
@@ -107,12 +108,14 @@ class BuyInsurance extends Component {
           this.state.date
         );
 
+        // Hide spinner and status
         this.setState({
           isBusy: false,
           message: "",
           modalMessage: response.error,
         });
 
+        // Show a dialog in case there is an error
         if (response.error) {
           window.dialog.showModal();
         }

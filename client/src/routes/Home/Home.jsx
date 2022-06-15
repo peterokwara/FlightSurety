@@ -114,6 +114,7 @@ class Home extends Component {
   async handleAuthorizeClick(e) {
     e.preventDefault();
 
+    // Show spinner and status
     await this.setState(
       {
         isBusy: true,
@@ -123,15 +124,17 @@ class Home extends Component {
         // Get the ethereum service
         const ethereumService = await ServiceFactory.get("ethereum-service");
 
-        // Set the operational status
+        // Authorize the caller
         const response = await ethereumService.authorizeCaller();
 
+        // Hide spinner and status
         this.setState({
           isBusy: false,
           message: "",
           modalMessage: response.error,
         });
 
+        // Show a dialog in case there is an error
         if (response.error) {
           window.dialog.showModal();
         }
@@ -143,6 +146,7 @@ class Home extends Component {
     e.preventDefault();
 
     if (!this.state.isChecked) {
+      // Show spinner and status
       await this.setState(
         {
           isBusy: true,
@@ -162,6 +166,7 @@ class Home extends Component {
             modalMessage: response.error,
           });
 
+          // Show a dialog in case there is an error
           if (response.error) {
             window.dialog.showModal();
           }
@@ -170,6 +175,7 @@ class Home extends Component {
     }
 
     if (this.state.isChecked) {
+      // Show spinner and status
       this.setState(
         {
           isBusy: true,
@@ -182,6 +188,7 @@ class Home extends Component {
           // Set the operational status
           const response = await ethereumService.setOperatingStatus(false);
 
+          // Hide spinner and status
           this.setState({
             isBusy: false,
             message: "",
@@ -189,6 +196,7 @@ class Home extends Component {
             modalMessage: response.error,
           });
 
+          // Show a dialog in case there is an error
           if (response.error) {
             window.dialog.showModal();
           }

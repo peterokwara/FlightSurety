@@ -23,9 +23,11 @@ Ethereum Dapp that allows users to register for Flight Insurance in case somethi
 
 Ethereum Dapp that allows users to register for Flight Insurance in case something happens to a flight. Part of the Udacity Blockchain Nanodegree.
 
-<p align="center">
-  <img src="./assets/image.png"/>
-</p>
+<a href="https://youtu.be/rcc_JFbEx2o" target="_blank">
+  <p align="center">
+    <img src="./assets/image.png"/>
+  </p>
+</a>
 
 ### Technical
 
@@ -185,7 +187,7 @@ truffle test
 
 #### UI test
 
-UI testing is a bit complicated, to show the steps, a video can be found [here]()
+UI testing is a bit complicated, to show the steps, a video can be found [here](https://youtu.be/rcc_JFbEx2o)
 
 #### Troubleshooting
 
