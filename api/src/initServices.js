@@ -1,6 +1,6 @@
 const ServiceFactory = require("./factories/serviceFactory");
-const EthereumService = require("./services/EthereumService");
-const OracleService = require("./services/OracleService");
+const EthereumService = require("./services/ethereumService");
+const OracleService = require("./services/oracleService");
 
 
 /**

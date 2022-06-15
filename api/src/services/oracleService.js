@@ -104,6 +104,7 @@ class OracleService {
         // Submit the oracle request
         for (let index = 0; index < this.App.oracles.length; index++) {
             if (this.App.oracles[index].index.includes(this.App.oracleResponse.index)) {
+                console.log("Oracle response", this.App.oracleResponse);
                 await ethereumService
                     .submitOracleResponse(this.App.oracles[index].address, this.App.oracleResponse);
             }
