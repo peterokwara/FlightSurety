@@ -6,7 +6,7 @@ import { Component } from "react";
 class InputDate extends Component {
   render() {
     return (
-      <div className="relative">
+      <div className="relative md:w-96">
         <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
           <svg
             className="w-5 h-5 text-gray-500"
@@ -28,7 +28,7 @@ class InputDate extends Component {
           defaultValue={this.props.inputDefault}
           onBlur={this.props.handleBlur}
           type="text"
-          className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
+          className=" bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
           placeholder="Select date"
         />
       </div>

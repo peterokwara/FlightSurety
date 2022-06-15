@@ -25,11 +25,11 @@ class FundAirline extends Component {
     return (
       <React.Fragment>
         <Dialog message={this.state.modalMessage} />
-        <form className="overflow-auto px-8">
+        <form className="overflow-auto px-8 md:px-12">
           <h2 className="text-2xl py-4">Fund Airline</h2>
           <div class="mb-6 ">
             <Label name="Fund Airline" />
-            <div className="relative mb-6">
+            <div className="relative mb-6 md:w-96">
               <Input inputName="amount" inputChange={this.handleChange} />
               <div class="flex absolute inset-y-0 right-2 items-center pl-3 pointer-events-none">
                 <svg

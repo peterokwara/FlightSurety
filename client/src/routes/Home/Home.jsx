@@ -25,7 +25,7 @@ class Home extends Component {
   render() {
     return (
       <React.Fragment>
-        <form className="overflow-auto px-8">
+        <form className="overflow-auto px-8 md:px-12">
           <Dialog message={this.state.modalMessage} />
           <h2 className="text-4xl pt-2 pb-4 mb-3">Home</h2>
           <Spinner isBusy={this.state.isBusy} message={this.state.message} />

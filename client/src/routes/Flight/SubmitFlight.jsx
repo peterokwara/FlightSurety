@@ -28,7 +28,7 @@ class SubmitFlight extends Component {
   render() {
     return (
       <React.Fragment>
-        <form className="overflow-auto px-8">
+        <form className="overflow-auto px-8 md:px-12">
           <Dialog message={this.state.modalMessage} />
           <h2 className="text-2xl py-4">Submit Flight</h2>
           <div className="mb-6 ">

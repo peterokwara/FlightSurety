@@ -27,7 +27,7 @@ class RegisterAirline extends Component {
     return (
       <React.Fragment>
         <Dialog message={this.state.modalMessage} />
-        <form className="overflow-auto px-8">
+        <form className="overflow-auto px-8 md:px-12">
           <h2 className="text-2xl py-4">Register Airline</h2>
           <Spinner isBusy={this.state.isBusy} message={this.state.message} />
           <div class="mb-6 ">

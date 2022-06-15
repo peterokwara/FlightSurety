@@ -24,12 +24,12 @@ class ClaimInsurance extends Component {
   render() {
     return (
       <React.Fragment>
-        <form className="overflow-auto px-8">
+        <form className="overflow-auto px-8 md:px-12">
           <Dialog message={this.state.modalMessage} />
           <h2 className="text-2xl py-4">Claim Insurance</h2>
           <div class="mb-6">
             <Label name="Amount" />
-            <div className="relative w-full">
+            <div className="relative w-full md:w-96">
               <Input
                 inputName="amount"
                 inputChange={this.handleChange}

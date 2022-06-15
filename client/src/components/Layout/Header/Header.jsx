@@ -1,7 +1,5 @@
 import { Component } from "react";
 import WalletButton from "../../Common/WalletButton/WalletButton";
-import Link from "../../Common/Link/Link";
-import Menu from "../Menu/Menu";
 
 /**
  * Component which renders the header component
@@ -26,24 +24,6 @@ class Header extends Component {
               buttonStyle="bg-cyan-600 text-xs text-white mx-2 px-4 py-2 my-2 text-center rounded-full shadow font-sans font-normal"
             />
           </div>
-        </div>
-        <div className="hidden md:flex md:flex-row lg:flex lg:flex-row justify-center">
-          <Link styles="px-2 text-xs" link="/" name="Farm Details" />
-          <Link
-            styles="px-2 text-xs"
-            link="/product-details"
-            name="Product Details"
-          />
-          <Link
-            styles="px-2 text-xs"
-            link="/product-overview"
-            name="Product Overview"
-          />
-          <Link
-            styles="px-2 text-xs"
-            link="/transaction-history"
-            name="Transaction History"
-          />
         </div>
       </header>
     );
